@@ -8,15 +8,12 @@
 // Set up include path accordingly. This is especially required because some
 // class files of phpseclib require() other dependencies.
 set_include_path(implode(PATH_SEPARATOR, array(
+	dirname(__FILE__),
 	dirname(__FILE__) . '/../phpseclib/',
 	get_include_path(),
 )));
 
-function phpseclib_autoload($class)
-{
-	$file = str_replace('_', '/', $class) . '.php';
+require_once 'SplClassLoader.php';
 
-	require $file;
-}
-
-spl_autoload_register('phpseclib_autoload');
+$cl = new SplClassLoader();
+$cl->register();

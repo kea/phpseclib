@@ -83,53 +83,7 @@
  * @link       http://phpseclib.sourceforge.net
  */
 
-/**
- * Include Math_BigInteger
- *
- * Used to do Diffie-Hellman key exchange and DSA/RSA signature verification.
- */
-if (!class_exists('Math_BigInteger')) {
-    require_once('Math/BigInteger.php');
-}
-
-/**
- * Include Crypt_Random
- */
-// the class_exists() will only be called if the crypt_random function hasn't been defined and
-// will trigger a call to __autoload() if you're wanting to auto-load classes
-// call function_exists() a second time to stop the require_once from being called outside
-// of the auto loader
-if (!function_exists('crypt_random') && !class_exists('Crypt_Random') && !function_exists('crypt_random')) {
-    require_once('Crypt/Random.php');
-}
-
-/**
- * Include Crypt_Hash
- */
-if (!class_exists('Crypt_Hash')) {
-    require_once('Crypt/Hash.php');
-}
-
-/**
- * Include Crypt_TripleDES
- */
-if (!class_exists('Crypt_TripleDES')) {
-    require_once('Crypt/TripleDES.php');
-}
-
-/**
- * Include Crypt_RC4
- */
-if (!class_exists('Crypt_RC4')) {
-    require_once('Crypt/RC4.php');
-}
-
-/**
- * Include Crypt_AES
- */
-if (!class_exists('Crypt_AES')) {
-    require_once('Crypt/AES.php');
-}
+namespace phpseclib;
 
 /**#@+
  * Execution Bitmap Masks
@@ -743,7 +697,7 @@ class Net_SSH2 {
      * @return Net_SSH2
      * @access public
      */
-    function Net_SSH2($host, $port = 22, $timeout = 10)
+    function __construct($host, $port = 22, $timeout = 10)
     {
         $this->message_numbers = array(
             1 => 'NET_SSH2_MSG_DISCONNECT',
@@ -983,7 +937,7 @@ class Net_SSH2 {
 
         $client_cookie = '';
         for ($i = 0; $i < 16; $i++) {
-            $client_cookie.= chr(crypt_random(0, 255));
+            $client_cookie.= chr(Crypt_Random::generateRandom(0, 255));
         }
 
         $response = $kexinit_payload_server;
@@ -1162,7 +1116,7 @@ class Net_SSH2 {
 
         $g = new Math_BigInteger(2);
         $x = new Math_BigInteger();
-        $x->setRandomGenerator('crypt_random');
+        $x->setRandomGenerator('phpseclib\Crypt_Random::generateRandom');
         $x = $x->random(new Math_BigInteger(1), $q);
         $e = $g->modPow($x, $p);
 
@@ -1482,13 +1436,12 @@ class Net_SSH2 {
             return false;
         }
 
-        // although PHP5's get_class() preserves the case, PHP4's does not
         if (is_object($password)) {
-            switch(strtolower(get_class($password))) {
-                case 'crypt_rsa':
-                    return $this->_privatekey_login($username, $password);
-                case 'net_ssh2_agent':
-                    return $this->_ssh_agent_login($username, $password);
+            if ($password instanceof Crypt_RSA) {
+                return $this->_privatekey_login($username, $password);
+            }
+            if ($password instanceof Net_SSH2_Agent) {
+                return $this->_ssh_agent_login($username, $password);
             }
         }
 
@@ -2430,7 +2383,7 @@ class Net_SSH2 {
 
         $padding = '';
         for ($i = 0; $i < $padding_length; $i++) {
-            $padding.= chr(crypt_random(0, 255));
+            $padding.= chr(Crypt_Random::generateRandom(0, 255));
         }
 
         // we subtract 4 from packet_length because the packet_length field isn't supposed to include itself

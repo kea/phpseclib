@@ -17,10 +17,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,6 +37,8 @@
  * @version    $Id$
  * @link       htp://phpseclib.sourceforge.net
  */
+
+namespace phpseclib;
 
 /**
  * Pure-PHP ANSI Decoder
@@ -213,7 +215,7 @@ class File_ANSI {
      * @return File_ANSI
      * @access public
      */
-    function File_ANSI()
+    function __construct()
     {
         $this->setHistory(200);
         $this->setDimensions(80, 24);

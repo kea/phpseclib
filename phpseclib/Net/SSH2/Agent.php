@@ -28,6 +28,8 @@
  * @link     http://phpseclib.sourceforge.net
  */
 
+namespace phpseclib;
+
 define('NET_SSH2_AGENTC_REQUEST_IDENTITIES', 11);
 define('NET_SSH2_AGENT_IDENTITIES_ANSWER', 12);
 define('NET_SSH2_AGENTC_SIGN_REQUEST', 13);

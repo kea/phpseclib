@@ -8,7 +8,7 @@
  *
  * Encode and decode X.509 certificates.
  *
- * The extensions are from {@link http://tools.ietf.org/html/rfc5280 RFC5280} and 
+ * The extensions are from {@link http://tools.ietf.org/html/rfc5280 RFC5280} and
  * {@link http://web.archive.org/web/19961027104704/http://www3.netscape.com/eng/security/cert-exts.html Netscape Certificate Extensions}.
  *
  * Note that loading an X.509 certificate and resaving it may invalidate the signature.  The reason being that the signature is based on a
@@ -23,10 +23,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -44,12 +44,7 @@
  * @link       htp://phpseclib.sourceforge.net
  */
 
-/**
- * Include File_ASN1
- */
-if (!class_exists('File_ASN1')) {
-    require_once('File/ASN1.php');
-}
+namespace phpseclib;
 
 /**
  * Flag to only accept signatures signed by certificate authorities
@@ -163,7 +158,7 @@ class File_X509 {
      * The signature subject
      *
      * There's no guarantee File_X509 is going to reencode an X.509 cert in the same way it was originally
-     * encoded so we take save the portion of the original cert that the signature would have made for. 
+     * encoded so we take save the portion of the original cert that the signature would have made for.
      *
      * @var String
      * @access private
@@ -219,7 +214,7 @@ class File_X509 {
      * @return File_X509
      * @access public
      */
-    function File_X509()
+    function __construct()
     {
         // Explicitly Tagged Module, 1988 Syntax
         // http://tools.ietf.org/html/rfc5280#appendix-A.1
@@ -1281,7 +1276,7 @@ class File_X509 {
 
         switch ($cert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']) {
             case 'rsaEncryption':
-                $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'] = 
+                $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'] =
                     base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $cert['tbsCertificate']['subjectPublicKeyInfo']['subjectPublicKey'])));
         }
 
@@ -1290,22 +1285,22 @@ class File_X509 {
         $asn1->loadOIDs($this->oids);
 
         $filters = array();
-        $filters['tbsCertificate']['signature']['parameters'] = 
-        $filters['tbsCertificate']['signature']['issuer']['rdnSequence']['value'] = 
-        $filters['tbsCertificate']['issuer']['rdnSequence']['value'] = 
-        $filters['tbsCertificate']['subject']['rdnSequence']['value'] = 
-        $filters['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters'] = 
-        $filters['signatureAlgorithm']['parameters'] = 
-        $filters['authorityCertIssuer']['directoryName']['rdnSequence']['value'] = 
-        //$filters['policyQualifiers']['qualifier'] = 
-        $filters['distributionPoint']['fullName']['directoryName']['rdnSequence']['value'] = 
-        $filters['directoryName']['rdnSequence']['value'] = 
+        $filters['tbsCertificate']['signature']['parameters'] =
+        $filters['tbsCertificate']['signature']['issuer']['rdnSequence']['value'] =
+        $filters['tbsCertificate']['issuer']['rdnSequence']['value'] =
+        $filters['tbsCertificate']['subject']['rdnSequence']['value'] =
+        $filters['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters'] =
+        $filters['signatureAlgorithm']['parameters'] =
+        $filters['authorityCertIssuer']['directoryName']['rdnSequence']['value'] =
+        //$filters['policyQualifiers']['qualifier'] =
+        $filters['distributionPoint']['fullName']['directoryName']['rdnSequence']['value'] =
+        $filters['directoryName']['rdnSequence']['value'] =
             array('type' => FILE_ASN1_TYPE_UTF8_STRING);
         /* in the case of policyQualifiers/qualifier, the type has to be FILE_ASN1_TYPE_IA5_STRING.
            FILE_ASN1_TYPE_PRINTABLE_STRING will cause OpenSSL's X.509 parser to spit out random
            characters.
          */
-        $filters['policyQualifiers']['qualifier'] = 
+        $filters['policyQualifiers']['qualifier'] =
             array('type' => FILE_ASN1_TYPE_IA5_STRING);
 
         $asn1->loadFilters($filters);
@@ -2172,7 +2167,7 @@ class File_X509 {
 
         switch ($csr['certificationRequestInfo']['subjectPKInfo']['algorithm']['algorithm']) {
             case 'rsaEncryption':
-                $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'] = 
+                $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'] =
                     base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'])));
         }
 
@@ -2181,7 +2176,7 @@ class File_X509 {
         $asn1->loadOIDs($this->oids);
 
         $filters = array();
-        $filters['certificationRequestInfo']['subject']['rdnSequence']['value'] = 
+        $filters['certificationRequestInfo']['subject']['rdnSequence']['value'] =
             array('type' => FILE_ASN1_TYPE_UTF8_STRING);
 
         $asn1->loadFilters($filters);

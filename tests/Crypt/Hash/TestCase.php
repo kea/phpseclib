@@ -5,6 +5,8 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+use phpseclib\Crypt_Hash;
+
 abstract class Crypt_Hash_TestCase extends PHPUnit_Framework_TestCase
 {
 	static public function setUpBeforeClass()
