@@ -59,18 +59,34 @@ class Net_SSH2_Agent
     /**
      * The socket connetion to ssh-agent
      *
-     * @access private
-     * @var resource
+     * @var Net_UnixSocket
      */
-    var $socket = null;
+    protected $socket = null;
+
+    /**
+     * Store the last error occurred
+     *
+     * @see Net_SSH2_Agent::getLastError()
+     * @var string
+     */
+    protected $lastError = false;
 
     /**
      * List of identities retrieved from ssh-agent
      *
-     * @access private
+     * @see Net_SSH2_Agent::getKeys()
      * @var Array
      */
-    var $keys = array();
+    protected $keys = array();
+
+    public function __construct(Net_UnixSocket $socket = null)
+    {
+        if (is_null($socket)) {
+            $socket = new Net_UnixSocket();
+        }
+
+        $this->socket = $socket;
+    }
 
     /**
      * Connects to the ssh-agent socket
@@ -79,12 +95,11 @@ class Net_SSH2_Agent
      */
     function connect()
     {
-        if (!is_null($this->socket) && $this->socketCanWrite($this->socket)) {
+        if ($this->socket instanceof Net_UnixSocket && $this->socket->isWritable()) {
 
-            return $this->socket;
+            return true;
         }
 
-        $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
         $address = null;
 
         if (isset($_SERVER['SSH_AUTH_SOCK'])) {
@@ -92,21 +107,18 @@ class Net_SSH2_Agent
         } elseif (isset($_ENV['SSH_AUTH_SOCK'])) {
             $address = $_ENV['SSH_AUTH_SOCK'];
         } else {
-            user_error('SSH_AUTH_SOCK not found.', E_USER_NOTICE);
+            $this->lastError = 'SSH_AUTH_SOCK not found.';
 
             return false;
         }
 
-        if (is_null($address) || !socket_connect($socket, $address)) {
-            user_error(
-                'Unable to connect '.socket_strerror(socket_last_error()),
-                E_USER_NOTICE
-            );
+        if (!$this->socket->connect($address)) {
+            $this->lastError = $this->socket->getLastError();
 
             return false;
         }
 
-        return $this->socket = $socket;
+        return true;
     }
 
     /**
@@ -138,7 +150,7 @@ class Net_SSH2_Agent
             return false;
         }
 
-        $buffer = socket_read($this->socket, $bufferLenght - 1);
+        $buffer = $this->socket->readBytes($bufferLenght - 1);
         $keysCount = $this->binaryToLong($buffer);
         $buffer = substr($buffer, 4);
 
@@ -196,7 +208,7 @@ class Net_SSH2_Agent
         $len = strlen($data) + 1;
         $buffer = pack("NCa*", $len, $type, $data);
 
-        return socket_write($this->socket, $buffer);
+        return $this->socket->writeBytes($buffer);
     }
 
     /**
@@ -206,7 +218,7 @@ class Net_SSH2_Agent
      */
     function readLength()
     {
-        $len = socket_read($this->socket, 4);
+        $len = $this->socket->readBytes(4);
 
         return $this->binaryToLong($len);
     }
@@ -219,7 +231,7 @@ class Net_SSH2_Agent
     function readType()
     {
 
-        return ord(socket_read($this->socket, 1));
+        return ord($this->socket->readBytes(1));
     }
 
     /**
@@ -250,22 +262,6 @@ class Net_SSH2_Agent
     }
 
     /**
-     * Test if the $socket is writable
-     *
-     * @param resource $socket the resource to be checked
-     *
-     * @return boolean TRUE on success, FALSE otherwise.
-     */
-    function socketCanWrite($socket)
-    {
-        $write = array($socket);
-        $n = null;
-        socket_select($n, $write, $n, 0);
-
-        return (isset($write[0]) && $write[0] === $socket);
-    }
-
-    /**
      * Sign $data with $pubkeydata via ssh-agent
      *
      * @param string $pubkeydata key used to sign
@@ -286,12 +282,12 @@ class Net_SSH2_Agent
             0
         );
 
-        if (!$this->socketCanWrite($this->socket)) {
+        if (!$this->socket->isWritable()) {
             // throw new Exception("Agent not connected");
             return false;
         }
 
-        $rc = socket_write($this->socket, pack("Na*", strlen($s), $s));
+        $rc = $this->socket->writeBytes(pack("Na*", strlen($s), $s));
 
         if ($rc === false) {
             // throw new Exception('Unable to write to the socket: '.
@@ -313,7 +309,7 @@ class Net_SSH2_Agent
             return false;
         }
 
-        $s = socket_read($this->socket, $len - 1);
+        $s = $this->socket->readBytes($len - 1);
 
         $signature = unpack('Nlen/a*blob', $s);
 
@@ -323,5 +319,10 @@ class Net_SSH2_Agent
         }
 
         return $signature['blob'];
+    }
+
+    public function getLastError()
+    {
+        return $this->lastError;
     }
 }
