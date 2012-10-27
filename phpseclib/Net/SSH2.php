@@ -1403,7 +1403,7 @@ class Net_SSH2 {
             if ($password instanceof Crypt_RSA) {
                 return $this->_privatekey_login($username, $password);
             }
-            if ($password instanceof Net_SSH2_Agent) {
+            if ($password instanceof File_Agent) {
                 return $this->_ssh_agent_login($username, $password);
             }
         }
