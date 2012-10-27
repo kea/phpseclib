@@ -398,7 +398,7 @@ class File_ANSI {
                                                 case 33: $front = 'yellow'; break;
                                                 case 34: $front = 'blue'; break;
                                                 case 35: $front = 'magenta'; break;
-                                                case 36: $front = 'cryan'; break;
+                                                case 36: $front = 'cyan'; break;
                                                 case 37: $front = 'white'; break;
 
                                                 case 40: $back = 'black'; break;
@@ -407,7 +407,7 @@ class File_ANSI {
                                                 case 43: $back = 'yellow'; break;
                                                 case 44: $back = 'blue'; break;
                                                 case 45: $back = 'magenta'; break;
-                                                case 46: $back = 'cryan'; break;
+                                                case 46: $back = 'cyan'; break;
                                                 case 47: $back = 'white'; break;
 
                                                 default:
@@ -481,6 +481,12 @@ class File_ANSI {
         }
     }
 
+    /**
+     * Returns the current screen without preformating
+     *
+     * @access private
+     * @return String
+     */
     function _getScreen()
     {
         $output = '';
@@ -498,11 +504,23 @@ class File_ANSI {
         return rtrim($output);
     }
 
+    /**
+     * Returns the current screen
+     *
+     * @access public
+     * @return String
+     */
     function getScreen()
     {
         return '<pre style="color: white; background: black" width="' . ($this->max_x + 1) . '">' . $this->_getScreen() . '</pre>';
     }
 
+    /**
+     * Returns the current screen and the x previous lines
+     *
+     * @access public
+     * @return String
+     */
     function getHistory()
     {
         $scrollback = '';
