@@ -13,8 +13,9 @@ class Net_UnixSocket
         if ($this->socket === false ||
             is_null($address) ||
             !socket_connect($this->socket, $address)) {
-            $this->lastError = sprintf("Cannot connect to %s:%d. Error %s: %s",
-                $host, $port, socket_last_error(),
+            $this->lastError = sprintf("Cannot connect to %s. Error %s: %s",
+                $address,
+                socket_last_error(),
                 socket_strerror(socket_last_error()));
 
             return false;

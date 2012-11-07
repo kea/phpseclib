@@ -165,7 +165,7 @@ define('NET_SSH2_LOG_MAX_SIZE', 1024 * 1024);
  */
 define('NET_SSH2_PRIVKEY_MODE_RSA', 0);
 /**
- * Used when a Net_SSH2_Agent object is passed as the second parameter of login()
+ * Used when a File_Agent object is passed as the second parameter of login()
  */
 define('NET_SSH2_PRIVKEY_MODE_AGENT', 1);
 /**#@-*/
