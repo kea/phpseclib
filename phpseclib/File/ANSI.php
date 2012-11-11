@@ -409,8 +409,8 @@ class File_ANSI {
                                                 case 47: $back = 'white'; break;
 
                                                 default:
-                                                    user_error('Unsupported attribute: ' . $mod);
                                                     $this->ansi = '';
+                                                    throw new Exception('Unsupported attribute: ' . $mod);
                                                     break 2;
                                             }
 
