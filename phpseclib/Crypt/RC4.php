@@ -265,10 +265,6 @@ class Crypt_RC4 {
                     $dkLen = 128;
                 }
 
-                if (!class_exists('Crypt_Hash')) {
-                    require_once('Crypt/Hash.php');
-                }
-
                 $i = 1;
                 while (strlen($key) < $dkLen) {
                     //$dk.= $this->_pbkdf($password, $salt, $count, $i++);

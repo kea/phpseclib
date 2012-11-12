@@ -1143,10 +1143,6 @@ class Net_SSH1 {
     function _rsa_crypt($m, $key)
     {
         /*
-        if (!class_exists('Crypt_RSA')) {
-            require_once('Crypt/RSA.php');
-        }
-
         $rsa = new Crypt_RSA();
         $rsa->loadKey($key, CRYPT_RSA_PUBLIC_FORMAT_RAW);
         $rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);

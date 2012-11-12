@@ -399,10 +399,6 @@ class Crypt_DES {
                     $count = 1000;
                 }
 
-                if (!class_exists('Crypt_Hash')) {
-                    require_once('Crypt/Hash.php');
-                }
-
                 $i = 1;
                 while (strlen($key) < 8) { // $dkLen == 8
                     //$dk.= $this->_pbkdf($password, $salt, $count, $i++);

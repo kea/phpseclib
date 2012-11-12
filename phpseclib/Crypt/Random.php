@@ -92,22 +92,6 @@ class Crypt_Random
             return abs($random) % ($max - $min) + $min;
         }
 
-        /* Prior to PHP 4.2.0, mt_srand() had to be called before mt_rand() could be called.
-           Prior to PHP 5.2.6, mt_rand()'s automatic seeding was subpar, as elaborated here:
-
-           http://www.suspekt.org/2008/08/17/mt_srand-and-not-so-random-numbers/
-
-           The seeding routine is pretty much ripped from PHP's own internal GENERATE_SEED() macro:
-
-           http://svn.php.net/viewvc/php/php-src/tags/php_5_3_2/ext/standard/php_rand.h?view=markup */
-        if (version_compare(PHP_VERSION, '5.2.5', '<=')) {
-            static $seeded;
-            if (!isset($seeded)) {
-                $seeded = true;
-                mt_srand(fmod(time() * getmypid(), 0x7FFFFFFF) ^ fmod(1000000 * lcg_value(), 0x7FFFFFFF));
-            }
-        }
-
         static $crypto;
 
         // The CSPRNG's Yarrow and Fortuna periodically reseed.  This function can be reseeded by hitting F5
@@ -120,16 +104,16 @@ class Crypt_Random
                 $iv .= pack('n', mt_rand(0, 0xFFFF));
             }
             switch (true) {
-                case class_exists('Crypt_AES'):
+                case class_exists(__NAMESPACE__.'\Crypt_AES'):
                     $crypto = new Crypt_AES(CRYPT_AES_MODE_CTR);
                     break;
-                case class_exists('Crypt_TripleDES'):
+                case class_exists(__NAMESPACE__.'\Crypt_TripleDES'):
                     $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
                     break;
-                case class_exists('Crypt_DES'):
+                case class_exists(__NAMESPACE__.'\Crypt_DES'):
                     $crypto = new Crypt_DES(CRYPT_DES_MODE_CTR);
                     break;
-                case class_exists('Crypt_RC4'):
+                case class_exists(__NAMESPACE__.'\Crypt_RC4'):
                     $crypto = new Crypt_RC4();
                     break;
                 default:

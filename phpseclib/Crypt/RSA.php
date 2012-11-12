@@ -701,9 +701,6 @@ class Crypt_RSA {
                 } else {
                     $private.= $this->_random(16 - (strlen($private) & 15));
                     $source.= pack('Na*', strlen($private), $private);
-                    if (!class_exists('Crypt_AES')) {
-                        require_once('Crypt/AES.php');
-                    }
                     $sequence = 0;
                     $symkey = '';
                     while (strlen($symkey) < 32) {
@@ -722,9 +719,6 @@ class Crypt_RSA {
                 $private = base64_encode($private);
                 $key.= 'Private-Lines: ' . ((strlen($private) + 32) >> 6) . "\r\n";
                 $key.= chunk_split($private, 64);
-                if (!class_exists('Crypt_Hash')) {
-                    require_once('Crypt/Hash.php');
-                }
                 $hash = new Crypt_Hash('sha1');
                 $hash->setKey(pack('H*', sha1($hashkey)));
                 $key.= 'Private-MAC: ' . bin2hex($hash->hash($source)) . "\r\n";
@@ -762,9 +756,6 @@ class Crypt_RSA {
                     $iv = $this->_random(8);
                     $symkey = pack('H*', md5($this->password . $iv)); // symkey is short for symmetric key
                     $symkey.= substr(pack('H*', md5($symkey . $this->password . $iv)), 0, 8);
-                    if (!class_exists('Crypt_TripleDES')) {
-                        require_once('Crypt/TripleDES.php');
-                    }
                     $des = new Crypt_TripleDES();
                     $des->setKey($symkey);
                     $des->setIV($iv);
@@ -928,28 +919,16 @@ class Crypt_RSA {
                     }
                     switch ($matches[1]) {
                         case 'AES-128-CBC':
-                            if (!class_exists('Crypt_AES')) {
-                                require_once('Crypt/AES.php');
-                            }
                             $symkey = substr($symkey, 0, 16);
                             $crypto = new Crypt_AES();
                             break;
                         case 'DES-EDE3-CFB':
-                            if (!class_exists('Crypt_TripleDES')) {
-                                require_once('Crypt/TripleDES.php');
-                            }
                             $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CFB);
                             break;
                         case 'DES-EDE3-CBC':
-                            if (!class_exists('Crypt_TripleDES')) {
-                                require_once('Crypt/TripleDES.php');
-                            }
                             $crypto = new Crypt_TripleDES();
                             break;
                         case 'DES-CBC':
-                            if (!class_exists('Crypt_DES')) {
-                                require_once('Crypt/DES.php');
-                            }
                             $crypto = new Crypt_DES();
                             break;
                         default:
@@ -1153,9 +1132,6 @@ class Crypt_RSA {
 
                 switch ($encryption) {
                     case 'aes256-cbc':
-                        if (!class_exists('Crypt_AES')) {
-                            require_once('Crypt/AES.php');
-                        }
                         $symkey = '';
                         $sequence = 0;
                         while (strlen($symkey) < 32) {
