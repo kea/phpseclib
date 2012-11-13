@@ -1530,8 +1530,8 @@ class File_X509 {
                 $map = $this->_getMapping($id);
                 if (is_bool($map)) {
                     if (!$map) {
-                        user_error($id . ' is not a currently supported extension', E_USER_NOTICE);
                         unset($extensions[$i]);
+                        throw new Exception($id . ' is not a currently supported extension', E_USER_NOTICE);
                     }
                 } else {
                     $temp = $asn1->encodeDER($value, $map);
