@@ -394,8 +394,7 @@ class Net_SFTP extends Net_SSH2 {
 
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_VERSION) {
-            user_error('Expected SSH_FXP_VERSION', E_USER_NOTICE);
-            return false;
+            throw new Exception('Expected SSH_FXP_VERSION', E_USER_NOTICE);
         }
 
         extract(unpack('Nversion', $this->_string_shift($response, 4)));
@@ -583,8 +582,7 @@ class Net_SFTP extends Net_SSH2 {
                 $this->_logError($response);
                 return false;
             default:
-                user_error('Expected SSH_FXP_NAME or SSH_FXP_STATUS', E_USER_NOTICE);
-                return false;
+                throw new Exception('Expected SSH_FXP_NAME or SSH_FXP_STATUS', E_USER_NOTICE);
         }
 
         // if $this->pwd isn't set than the only thing $realpath could be is for '.', which is pretty much guaranteed to
@@ -640,8 +638,7 @@ class Net_SFTP extends Net_SSH2 {
                 $this->_logError($response);
                 return false;
             default:
-                user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS', E_USER_NOTICE);
-                return false;
+                throw new Exception('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS', E_USER_NOTICE);
         }
 
         if (!$this->_send_sftp_packet(NET_SFTP_CLOSE, pack('Na*', strlen($handle), $handle))) {
@@ -650,8 +647,7 @@ class Net_SFTP extends Net_SSH2 {
 
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
-            return false;
+            throw new Exception('Expected SSH_FXP_STATUS', E_USER_NOTICE);
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
@@ -726,8 +722,7 @@ class Net_SFTP extends Net_SSH2 {
                 $this->_logError($response);
                 return false;
             default:
-                user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS', E_USER_NOTICE);
-                return false;
+                throw new Exception('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS', E_USER_NOTICE);
         }
 
         $this->_save_dir($dir);
@@ -775,8 +770,7 @@ class Net_SFTP extends Net_SSH2 {
                     }
                     break 2;
                 default:
-                    user_error('Expected SSH_FXP_NAME or SSH_FXP_STATUS', E_USER_NOTICE);
-                    return false;
+                    throw new Exception('Expected SSH_FXP_NAME or SSH_FXP_STATUS', E_USER_NOTICE);
             }
         }
 
@@ -788,8 +782,7 @@ class Net_SFTP extends Net_SSH2 {
         //  -- http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.1.3
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
-            return false;
+            throw new Exception('Expected SSH_FXP_STATUS', E_USER_NOTICE);
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
@@ -991,8 +984,7 @@ class Net_SFTP extends Net_SSH2 {
                 return false;
         }
 
-        user_error('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS', E_USER_NOTICE);
-        return false;
+        throw new Exception('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS', E_USER_NOTICE);
     }
 
     /**
@@ -1084,8 +1076,7 @@ class Net_SFTP extends Net_SSH2 {
         */
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
-            return false;
+            throw new Exception('Expected SSH_FXP_STATUS', E_USER_NOTICE);
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
@@ -1111,8 +1102,7 @@ class Net_SFTP extends Net_SSH2 {
                 return false;
         }
 
-        user_error('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS', E_USER_NOTICE);
-        return false;
+        throw new Exception('Expected SSH_FXP_ATTRS or SSH_FXP_STATUS', E_USER_NOTICE);
     }
 
     /**
@@ -1244,8 +1234,7 @@ class Net_SFTP extends Net_SSH2 {
 
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
-            return false;
+            throw new Exception('Expected SSH_FXP_STATUS', E_USER_NOTICE);
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
@@ -1283,8 +1272,7 @@ class Net_SFTP extends Net_SSH2 {
 
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
-            return false;
+            throw new Exception('Expected SSH_FXP_STATUS', E_USER_NOTICE);
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
@@ -1360,8 +1348,7 @@ class Net_SFTP extends Net_SSH2 {
                 $this->_logError($response);
                 return false;
             default:
-                user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS', E_USER_NOTICE);
-                return false;
+                throw new Exception('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS', E_USER_NOTICE);
         }
 
         $initialize = true;
@@ -1369,8 +1356,7 @@ class Net_SFTP extends Net_SSH2 {
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.2.3
         if ($mode & NET_SFTP_LOCAL_FILE) {
             if (!is_file($data)) {
-                user_error("$data is not a valid file", E_USER_NOTICE);
-                return false;
+                throw new Exception("$data is not a valid file", E_USER_NOTICE);
             }
             $fp = @fopen($data, 'rb');
             if (!$fp) {
@@ -1420,8 +1406,7 @@ class Net_SFTP extends Net_SSH2 {
 
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
-            return false;
+            throw new Exception('Expected SSH_FXP_STATUS', E_USER_NOTICE);
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
@@ -1448,8 +1433,7 @@ class Net_SFTP extends Net_SSH2 {
         while ($i--) {
             $response = $this->_get_sftp_packet();
             if ($this->packet_type != NET_SFTP_STATUS) {
-                user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
-                return false;
+                throw new Exception('Expected SSH_FXP_STATUS', E_USER_NOTICE);
             }
 
             extract(unpack('Nstatus', $this->_string_shift($response, 4)));
@@ -1499,8 +1483,7 @@ class Net_SFTP extends Net_SSH2 {
                 $this->_logError($response);
                 return false;
             default:
-                user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS', E_USER_NOTICE);
-                return false;
+                throw new Exception('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS', E_USER_NOTICE);
         }
 
         if ($local_file !== false) {
@@ -1537,11 +1520,10 @@ class Net_SFTP extends Net_SSH2 {
                     $this->_logError($response);
                     break 2;
                 default:
-                    user_error('Expected SSH_FXP_DATA or SSH_FXP_STATUS', E_USER_NOTICE);
                     if ($local_file !== false) {
                         fclose($fp);
                     }
-                    return false;
+                    throw new Exception('Expected SSH_FXP_DATA or SSH_FXP_STATUS', E_USER_NOTICE);
             }
         }
 
@@ -1555,8 +1537,7 @@ class Net_SFTP extends Net_SSH2 {
 
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
-            return false;
+            throw new Exception('Expected SSH_FXP_STATUS', E_USER_NOTICE);
         }
 
         $this->_logError($response);
@@ -1599,8 +1580,7 @@ class Net_SFTP extends Net_SSH2 {
 
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
-            return false;
+            throw new Exception('Expected SSH_FXP_STATUS', E_USER_NOTICE);
         }
 
         // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
@@ -1718,8 +1698,7 @@ class Net_SFTP extends Net_SSH2 {
 
         $response = $this->_get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            user_error('Expected SSH_FXP_STATUS', E_USER_NOTICE);
-            return false;
+            throw new Exception('Expected SSH_FXP_STATUS', E_USER_NOTICE);
         }
 
         // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
