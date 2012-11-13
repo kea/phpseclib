@@ -39,10 +39,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -59,6 +59,8 @@
  * @version    $Id: DES.php,v 1.12 2010/02/09 06:10:26 terrafrost Exp $
  * @link       http://phpseclib.sourceforge.net
  */
+
+namespace phpseclib;
 
 /**#@+
  * @access private
@@ -291,7 +293,7 @@ class Crypt_DES {
      * @return Crypt_DES
      * @access public
      */
-    function Crypt_DES($mode = CRYPT_DES_MODE_CBC)
+    function __construct($mode = CRYPT_MODE_DES_CBC)
     {
         if ( !defined('CRYPT_DES_MODE') ) {
             switch (true) {
@@ -395,10 +397,6 @@ class Crypt_DES {
                 // WPA and WPA2 use 4,096.
                 if (!isset($count)) {
                     $count = 1000;
-                }
-
-                if (!class_exists('Crypt_Hash')) {
-                    require_once('Crypt/Hash.php');
                 }
 
                 $i = 1;
@@ -1216,7 +1214,7 @@ class Crypt_DES {
             (($key[1] & 0x00000010) >>  1) | (($key[1] & 0x00001000) >> 10) |
             (($key[1] & 0x00100000) >> 19) | (($key[1] & 0x10000000) >> 28) |
             ($msb[1] << 24) | ($msb[0] << 20)
-        ); 
+        );
 
         $keys = array();
         for ($i = 0; $i < 16; $i++) {

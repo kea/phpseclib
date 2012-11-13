@@ -20,10 +20,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -41,12 +41,7 @@
  * @link       http://phpseclib.sourceforge.net
  */
 
-/**
- * Include Math_BigInteger
- */
-if (!class_exists('Math_BigInteger')) {
-    require_once('Math/BigInteger.php');
-}
+namespace phpseclib;
 
 /**#@+
  * Tag Classes
@@ -140,7 +135,7 @@ class File_ASN1_Element {
      * @return File_ASN1_Element
      * @access public
      */
-    function File_ASN1_Element($encoded)
+    function __construct($encoded)
     {
         $this->element = $encoded;
     }
@@ -304,12 +299,12 @@ class File_ASN1 {
                 } while ( $loop );
             }
 
-            // Length, as discussed in § 8.1.3 of X.690-0207.pdf#page=13
+            // Length, as discussed in ï¿½ 8.1.3 of X.690-0207.pdf#page=13
             $length = ord($this->_string_shift($encoded));
             $start++;
             if ( $length == 0x80 ) { // indefinite length
-                // "[A sender shall] use the indefinite form (see 8.1.3.6) if the encoding is constructed and is not all 
-                //  immediately available." -- § 8.1.3.2.c
+                // "[A sender shall] use the indefinite form (see 8.1.3.6) if the encoding is constructed and is not all
+                //  immediately available." -- ï¿½ 8.1.3.2.c
                 //if ( !$constructed ) {
                 //    return false;
                 //}
@@ -323,7 +318,7 @@ class File_ASN1 {
                 extract(unpack('Nlength', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4)));
             }
 
-            // End-of-content, see §§ 8.1.1.3, 8.1.3.2, 8.1.3.6, 8.1.5, and (for an example) 8.6.4.2
+            // End-of-content, see ï¿½ï¿½ 8.1.1.3, 8.1.3.2, 8.1.3.6, 8.1.5, and (for an example) 8.6.4.2
             if (!$type && !$length) {
                 return $decoded;
             }
@@ -357,7 +352,7 @@ class File_ASN1 {
             // decode UNIVERSAL tags
             switch ($tag) {
                 case FILE_ASN1_TYPE_BOOLEAN:
-                    // "The contents octets shall consist of a single octet." -- § 8.2.1
+                    // "The contents octets shall consist of a single octet." -- ï¿½ 8.2.1
                     //if (strlen($content) != 1) {
                     //    return false;
                     //}
@@ -406,11 +401,11 @@ class File_ASN1 {
                             //}
                             $current['content'].= $temp[$i]['content'];
                         }
-                        // $length = 
+                        // $length =
                     }
                     break;
                 case FILE_ASN1_TYPE_NULL:
-                    // "The contents octets shall not contain any octets." -- § 8.8.2
+                    // "The contents octets shall not contain any octets." -- ï¿½ 8.8.2
                     //if (strlen($content)) {
                     //    return false;
                     //}
@@ -441,9 +436,9 @@ class File_ASN1 {
                 /* Each character string type shall be encoded as if it had been declared:
                    [UNIVERSAL x] IMPLICIT OCTET STRING
 
-                     -- X.690-0207.pdf#page=23 (§ 8.21.3)
+                     -- X.690-0207.pdf#page=23 (ï¿½ 8.21.3)
 
-                   Per that, we're not going to do any validation.  If there are any illegal characters in the string, 
+                   Per that, we're not going to do any validation.  If there are any illegal characters in the string,
                    we don't really care */
                 case FILE_ASN1_TYPE_NUMERIC_STRING:
                     // 0,1,2,3,4,5,6,7,8,9, and space
@@ -1048,7 +1043,7 @@ class File_ASN1 {
      * DER-encode the length
      *
      * DER supports lengths up to (2**8)**127, however, we'll only support lengths up to (2**8)**4.  See
-     * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 § 8.1.3} for more information.
+     * {@link http://itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#p=13 X.690 ï¿½ 8.1.3} for more information.
      *
      * @access private
      * @param Integer $length

@@ -8,7 +8,7 @@
  *
  * Encode and decode X.509 certificates.
  *
- * The extensions are from {@link http://tools.ietf.org/html/rfc5280 RFC5280} and 
+ * The extensions are from {@link http://tools.ietf.org/html/rfc5280 RFC5280} and
  * {@link http://web.archive.org/web/19961027104704/http://www3.netscape.com/eng/security/cert-exts.html Netscape Certificate Extensions}.
  *
  * Note that loading an X.509 certificate and resaving it may invalidate the signature.  The reason being that the signature is based on a
@@ -23,10 +23,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -44,12 +44,7 @@
  * @link       htp://phpseclib.sourceforge.net
  */
 
-/**
- * Include File_ASN1
- */
-if (!class_exists('File_ASN1')) {
-    require_once('File/ASN1.php');
-}
+namespace phpseclib;
 
 /**
  * Flag to only accept signatures signed by certificate authorities
@@ -190,7 +185,7 @@ class File_X509 {
      * The signature subject
      *
      * There's no guarantee File_X509 is going to reencode an X.509 cert in the same way it was originally
-     * encoded so we take save the portion of the original cert that the signature would have made for. 
+     * encoded so we take save the portion of the original cert that the signature would have made for.
      *
      * @var String
      * @access private
@@ -246,7 +241,7 @@ class File_X509 {
      * @return File_X509
      * @access public
      */
-    function File_X509()
+    function __construct()
     {
         // Explicitly Tagged Module, 1988 Syntax
         // http://tools.ietf.org/html/rfc5280#appendix-A.1
@@ -1407,22 +1402,22 @@ class File_X509 {
         $asn1->loadOIDs($this->oids);
 
         $filters = array();
-        $filters['tbsCertificate']['signature']['parameters'] = 
-        $filters['tbsCertificate']['signature']['issuer']['rdnSequence']['value'] = 
-        $filters['tbsCertificate']['issuer']['rdnSequence']['value'] = 
-        $filters['tbsCertificate']['subject']['rdnSequence']['value'] = 
-        $filters['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters'] = 
-        $filters['signatureAlgorithm']['parameters'] = 
-        $filters['authorityCertIssuer']['directoryName']['rdnSequence']['value'] = 
-        //$filters['policyQualifiers']['qualifier'] = 
-        $filters['distributionPoint']['fullName']['directoryName']['rdnSequence']['value'] = 
-        $filters['directoryName']['rdnSequence']['value'] = 
+        $filters['tbsCertificate']['signature']['parameters'] =
+        $filters['tbsCertificate']['signature']['issuer']['rdnSequence']['value'] =
+        $filters['tbsCertificate']['issuer']['rdnSequence']['value'] =
+        $filters['tbsCertificate']['subject']['rdnSequence']['value'] =
+        $filters['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters'] =
+        $filters['signatureAlgorithm']['parameters'] =
+        $filters['authorityCertIssuer']['directoryName']['rdnSequence']['value'] =
+        //$filters['policyQualifiers']['qualifier'] =
+        $filters['distributionPoint']['fullName']['directoryName']['rdnSequence']['value'] =
+        $filters['directoryName']['rdnSequence']['value'] =
             array('type' => FILE_ASN1_TYPE_UTF8_STRING);
         /* in the case of policyQualifiers/qualifier, the type has to be FILE_ASN1_TYPE_IA5_STRING.
            FILE_ASN1_TYPE_PRINTABLE_STRING will cause OpenSSL's X.509 parser to spit out random
            characters.
          */
-        $filters['policyQualifiers']['qualifier'] = 
+        $filters['policyQualifiers']['qualifier'] =
             array('type' => FILE_ASN1_TYPE_IA5_STRING);
 
         $asn1->loadFilters($filters);
@@ -1896,9 +1891,6 @@ class File_X509 {
     {
         switch ($publicKeyAlgorithm) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
-                }
                 $rsa = new Crypt_RSA();
                 $rsa->loadKey($publicKey);
 
@@ -2269,9 +2261,6 @@ class File_X509 {
                 return $result;
             case FILE_X509_DN_HASH:
                 $dn = $this->getDN(FILE_X509_DN_CANON, $dn);
-                if (!class_exists('Crypt_Hash')) {
-                    require_once('Crypt/Hash.php');
-                }
                 $hash = new Crypt_Hash('sha1');
                 $hash = $hash->hash($dn);
                 extract(unpack('Vhash', $hash));
@@ -2491,9 +2480,6 @@ class File_X509 {
 
         switch ($keyinfo['algorithm']['algorithm']) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
-                }
                 $publicKey = new Crypt_RSA();
                 $publicKey->loadKey($key);
                 $publicKey->setPublicKey();
@@ -2550,9 +2536,6 @@ class File_X509 {
 
         switch ($algorithm) {
             case 'rsaEncryption':
-                if (!class_exists('Crypt_RSA')) {
-                    require_once('Crypt/RSA.php');
-                }
                 $this->publicKey = new Crypt_RSA();
                 $this->publicKey->loadKey($key);
                 $this->publicKey->setPublicKey();
@@ -2582,7 +2565,7 @@ class File_X509 {
 
         switch ($csr['certificationRequestInfo']['subjectPKInfo']['algorithm']['algorithm']) {
             case 'rsaEncryption':
-                $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'] = 
+                $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'] =
                     base64_encode("\0" . base64_decode(preg_replace('#-.+-|[\r\n]#', '', $csr['certificationRequestInfo']['subjectPKInfo']['subjectPublicKey'])));
         }
 
@@ -2591,7 +2574,7 @@ class File_X509 {
         $asn1->loadOIDs($this->oids);
 
         $filters = array();
-        $filters['certificationRequestInfo']['subject']['rdnSequence']['value'] = 
+        $filters['certificationRequestInfo']['subject']['rdnSequence']['value'] =
             array('type' => FILE_ASN1_TYPE_UTF8_STRING);
 
         $asn1->loadFilters($filters);
@@ -3445,9 +3428,6 @@ class File_X509 {
         }
 
         // Now we have the key string: compute its sha-1 sum.
-        if (!class_exists('Crypt_Hash')) {
-            require_once('Crypt/Hash.php');
-        }
         $hash = new Crypt_Hash('sha1');
         $hash = $hash->hash($key);
 

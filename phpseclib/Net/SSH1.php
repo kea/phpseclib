@@ -36,7 +36,7 @@
  * ?>
  * </code>
  *
- * More information on the SSHv1 specification can be found by reading 
+ * More information on the SSHv1 specification can be found by reading
  * {@link http://www.snailbook.com/docs/protocol-1.5.txt protocol-1.5.txt}.
  *
  * LICENSE: Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -45,10 +45,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -66,51 +66,7 @@
  * @link       http://phpseclib.sourceforge.net
  */
 
-/**
- * Include Math_BigInteger
- *
- * Used to do RSA encryption.
- */
-if (!class_exists('Math_BigInteger')) {
-    require_once('Math/BigInteger.php');
-}
-
-/**
- * Include Crypt_Null
- */
-//require_once('Crypt/Null.php');
-
-/**
- * Include Crypt_DES
- */
-if (!class_exists('Crypt_DES')) {
-    require_once('Crypt/DES.php');
-}
-
-/**
- * Include Crypt_TripleDES
- */
-if (!class_exists('Crypt_TripleDES')) {
-    require_once('Crypt/TripleDES.php');
-}
-
-/**
- * Include Crypt_RC4
- */
-if (!class_exists('Crypt_RC4')) {
-    require_once('Crypt/RC4.php');
-}
-
-/**
- * Include Crypt_Random
- */
-// the class_exists() will only be called if the crypt_random function hasn't been defined and
-// will trigger a call to __autoload() if you're wanting to auto-load classes
-// call function_exists() a second time to stop the require_once from being called outside
-// of the auto loader
-if (!function_exists('crypt_random') && !class_exists('Crypt_Random') && !function_exists('crypt_random')) {
-    require_once('Crypt/Random.php');
-}
+namespace phpseclib;
 
 /**#@+
  * Encryption Methods
@@ -442,7 +398,7 @@ class Net_SSH1 {
      * @return Net_SSH1
      * @access public
      */
-    function Net_SSH1($host, $port = 22, $timeout = 10, $cipher = NET_SSH1_CIPHER_3DES)
+    function __construct($host, $port = 22, $timeout = 10, $cipher = NET_SSH1_CIPHER_3DES)
     {
         $this->protocol_flags = array(
             1  => 'NET_SSH1_MSG_DISCONNECT',
@@ -540,7 +496,7 @@ class Net_SSH1 {
 
         $session_key = '';
         for ($i = 0; $i < 32; $i++) {
-            $session_key.= chr(crypt_random(0, 255));
+            $session_key.= chr(Crypt_Random::generateRandom(0, 255));
         }
         $double_encrypted_session_key = $session_key ^ str_pad($session_id, 32, chr(0));
 
@@ -1011,7 +967,7 @@ class Net_SSH1 {
         $padding_length = 8 - ($length & 7);
         $padding = '';
         for ($i = 0; $i < $padding_length; $i++) {
-            $padding.= chr(crypt_random(0, 255));
+            $padding.= chr(Crypt_Random::generateRandom(0, 255));
         }
 
         $data = $padding . $data;
@@ -1163,10 +1119,6 @@ class Net_SSH1 {
     function _rsa_crypt($m, $key)
     {
         /*
-        if (!class_exists('Crypt_RSA')) {
-            require_once('Crypt/RSA.php');
-        }
-
         $rsa = new Crypt_RSA();
         $rsa->loadKey($key, CRYPT_RSA_PUBLIC_FORMAT_RAW);
         $rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
@@ -1190,7 +1142,7 @@ class Net_SSH1 {
         $modulus = $key[1]->toBytes();
         $length = strlen($modulus) - strlen($m) - 3;
         for ($i = 0; $i < $length; $i++) {
-            $temp.= chr(crypt_random(1, 255));
+            $temp.= chr(Crypt_Random::generateRandom(1, 255));
         }
         $temp.= chr(0) . $m;
 

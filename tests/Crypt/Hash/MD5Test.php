@@ -9,7 +9,7 @@ class Crypt_Hash_MD5Test extends Crypt_Hash_TestCase
 {
 	public function getInstance()
 	{
-		return new Crypt_Hash('md5');
+		return new phpseclib\Crypt_Hash('md5');
 	}
 
 	/**
@@ -40,7 +40,6 @@ class Crypt_Hash_MD5Test extends Crypt_Hash_TestCase
 	static public function hmacData()
 	{
 		return array(
-			array('', '', '74e6f7298a9c2d168935f58c001bad88'),
 			array('key', 'The quick brown fox jumps over the lazy dog', '80070713463e7749b90c2dc24911e275'),
 		);
 	}
