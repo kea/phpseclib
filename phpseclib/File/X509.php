@@ -251,16 +251,14 @@ class File_X509 {
         // Explicitly Tagged Module, 1988 Syntax
         // http://tools.ietf.org/html/rfc5280#appendix-A.1
 
-        $temp = array('min' => 1, 'max' => -1);
-
         $DirectoryString = array(
             'type'     => FILE_ASN1_TYPE_CHOICE,
             'children' => array(
-                'teletexString'   => $temp + array('type' => FILE_ASN1_TYPE_TELETEX_STRING),
-                'printableString' => $temp + array('type' => FILE_ASN1_TYPE_PRINTABLE_STRING),
-                'universalString' => $temp + array('type' => FILE_ASN1_TYPE_UNIVERSAL_STRING),
-                'utf8String'      => $temp + array('type' => FILE_ASN1_TYPE_UTF8_STRING),
-                'bmpString'       => $temp + array('type' => FILE_ASN1_TYPE_BMP_STRING)
+                'teletexString'   => array('type' => FILE_ASN1_TYPE_TELETEX_STRING),
+                'printableString' => array('type' => FILE_ASN1_TYPE_PRINTABLE_STRING),
+                'universalString' => array('type' => FILE_ASN1_TYPE_UNIVERSAL_STRING),
+                'utf8String'      => array('type' => FILE_ASN1_TYPE_UTF8_STRING),
+                'bmpString'       => array('type' => FILE_ASN1_TYPE_BMP_STRING)
             )
         );
 
@@ -1537,8 +1535,8 @@ class File_X509 {
                 $map = $this->_getMapping($id);
                 if (is_bool($map)) {
                     if (!$map) {
-                        user_error($id . ' is not a currently supported extension', E_USER_NOTICE);
                         unset($extensions[$i]);
+                        throw new Exception($id . ' is not a currently supported extension', E_USER_NOTICE);
                     }
                 } else {
                     $temp = $asn1->encodeDER($value, $map);
@@ -1855,7 +1853,7 @@ class File_X509 {
                     for ($i = 0; $i < count($this->CAs); $i++) {
                         $ca = $this->CAs[$i];
                         if ($this->currentCert['tbsCertList']['issuer'] === $ca['tbsCertificate']['subject']) {
-                            $authorityKey = $this->getCRLExtension('id-ce-authorityKeyIdentifier');
+                            $authorityKey = $this->getExtension('id-ce-authorityKeyIdentifier');
                             $subjectKeyID = $this->getExtension('id-ce-subjectKeyIdentifier', $ca);
                             switch (true) {
                                 case !is_array($authorityKey):
@@ -2807,8 +2805,7 @@ class File_X509 {
 
         if (isset($subject->domains) && count($subject->domains) > 1) {
             $this->setExtension('id-ce-subjectAltName',
-                array_map(create_function('$domain',
-                    'return array("dNSName" => $domain);'), $subject->domains));
+                array_map(array('File_X509', '_dnsName'), $subject->domains));
         }
 
         if ($this->caFlag) {
@@ -2961,12 +2958,12 @@ class File_X509 {
             $crlNumber = $this->serialNumber;
         }
         else {
-            $crlNumber = $this->getCRLExtension('id-ce-cRLNumber');
+            $crlNumber = $this->getExtension('id-ce-cRLNumber');
             $crlNumber = $crlNumber !== false ? $crlNumber->add(new Math_BigInteger(1)) : NULL;
             }
 
-        $this->removeCRLExtension('id-ce-authorityKeyIdentifier');
-        $this->removeCRLExtension('id-ce-issuerAltName');
+        $this->removeExtension('id-ce-authorityKeyIdentifier');
+        $this->removeExtension('id-ce-issuerAltName');
 
         // Be sure version >= v2 if some extension found.
         $version = isset($tbsCertList['version']) ? $tbsCertList['version'] : 0;
@@ -2990,11 +2987,11 @@ class File_X509 {
         // Store additional extensions.
         if (!empty($tbsCertList['version'])) { // At least v2.
             if (!empty($crlNumber)) {
-                $this->setCRLExtension('id-ce-cRLNumber', $crlNumber);
+                $this->setExtension('id-ce-cRLNumber', $crlNumber);
             }
 
             if (isset($issuer->currentKeyIdentifier)) {
-                $this->setCRLExtension('id-ce-authorityKeyIdentifier', array(
+                $this->setExtension('id-ce-authorityKeyIdentifier', array(
                         //'authorityCertIssuer' => array(
                         //    array(
                         //        'directoryName' => $issuer->dn
@@ -3013,7 +3010,7 @@ class File_X509 {
             $issuerAltName = $this->getExtension('id-ce-subjectAltName', $issuer->currentCert);
 
             if ($issuerAltName !== false) {
-                $this->setCRLExtension('id-ce-issuerAltName', $issuerAltName);
+                $this->setExtension('id-ce-issuerAltName', $issuerAltName);
             }
         }
 
@@ -3164,16 +3161,53 @@ class File_X509 {
     }
 
     /**
+     * Get a reference to an extension subarray
+     *
+     * @param array $root
+     * @param String $path optional absolute path with / as component separator
+     * @param Boolean $create optional
+     * @access private
+     * @return array ref or false
+     */
+    function &_extensions(&$root, $path = NULL, $create = false)
+    {
+        if (!isset($root)) {
+            $root = $this->currentCert;
+        }
+
+        switch (true) {
+            case !empty($path):
+            case !is_array($root):
+                break;
+            case isset($root['tbsCertificate']):
+                $path = 'tbsCertificate/extensions';
+                break;
+            case isset($root['tbsCertList']):
+                $path = 'tbsCertList/crlExtensions';
+                break;
+        }
+
+        $extensions = &$this->_subArray($root, $path, $create);
+
+        if (!is_array($extensions)) {
+            $false = false;
+            return $false;
+        }
+
+        return $extensions;
+    }
+
+    /**
      * Remove an Extension
      *
      * @param String $id
      * @param String $path optional
-     * @access public
+     * @access private
      * @return Boolean
      */
-    function removeExtension($id, $path = 'tbsCertificate/extensions')
+    function _removeExtension($id, $path = NULL)
     {
-        $extensions = &$this->_subArray($this->currentCert, $path);
+        $extensions = &$this->_extensions($this->currentCert, $path);
 
         if (!is_array($extensions)) {
             return false;
@@ -3188,20 +3222,7 @@ class File_X509 {
         }
 
         $extensions = array_values($extensions);
-
         return $result;
-    }
-
-    /**
-     * Remove a CRL Extension
-     *
-     * @param String $id
-     * @access public
-     * @return Boolean
-     */
-    function removeCRLExtension($id)
-    {
-        return $this->removeExtension($id, 'tbsCertList/crlExtensions');
     }
 
     /**
@@ -3212,16 +3233,12 @@ class File_X509 {
      * @param String $id
      * @param Array $cert optional
      * @param String $path optional
-     * @access public
+     * @access private
      * @return Mixed
      */
-    function getExtension($id, $cert = NULL, $path = 'tbsCertificate/extensions')
+    function _getExtension($id, $cert = NULL, $path = NULL)
     {
-        if (!isset($cert)) {
-            $cert = $this->currentCert;
-        }
-
-        $extensions = $this->_subArray($cert, $path);
+        $extensions = $this->_extensions($cert, $path);
 
         if (!is_array($extensions)) {
             return false;
@@ -3237,35 +3254,16 @@ class File_X509 {
     }
 
     /**
-     * Get a CRL Extension
-     *
-     * Returns the extension if it exists and false if not
-     *
-     * @param String $id
-     * @param Array $crl optional
-     * @access public
-     * @return Mixed
-     */
-    function getCRLExtension($id, $crl = NULL)
-    {
-        return $this->getExtension($id, $crl, 'tbsCertList/crlExtensions');
-    }
-
-    /**
      * Returns a list of all extensions in use
      *
      * @param array $cert optional
      * @param String $path optional
-     * @access public
+     * @access private
      * @return Array
      */
-    function getExtensions($cert = NULL, $path = 'tbsCertificate/extensions')
+    function _getExtensions($cert = NULL, $path = NULL)
     {
-        if (!isset($cert)) {
-            $cert = $this->currentCert;
-        }
-
-        $exts = $this->_subArray($cert, $path);
+        $exts = $this->_extensions($cert, $path);
         $extensions = array();
 
         if (is_array($exts)) {
@@ -3278,18 +3276,6 @@ class File_X509 {
     }
 
     /**
-     * Returns a list of all CRL extensions in use
-     *
-     * @param array $crl optional
-     * @access public
-     * @return Array
-     */
-    function getCRLExtensions($crl = NULL)
-    {
-        return $this->getExtensions($crl, 'tbsCertList/crlExtensions');
-    }
-
-    /**
      * Set an Extension
      *
      * @param String $id
@@ -3297,12 +3283,12 @@ class File_X509 {
      * @param Boolean $critical optional
      * @param Boolean $replace optional
      * @param String $path optional
-     * @access public
+     * @access private
      * @return Boolean
      */
-    function setExtension($id, $value, $critical = false, $replace = true, $path = 'tbsCertificate/extensions')
+    function _setExtension($id, $value, $critical = false, $replace = true, $path = NULL)
     {
-        $extensions = &$this->_subArray($this->currentCert, $path, true);
+        $extensions = &$this->_extensions($this->currentCert, $path, true);
 
         if (!is_array($extensions)) {
             return false;
@@ -3326,7 +3312,46 @@ class File_X509 {
     }
 
     /**
-     * Set a CRL Extension
+     * Remove a certificate or CRL Extension
+     *
+     * @param String $id
+     * @access public
+     * @return Boolean
+     */
+    function removeExtension($id)
+    {
+        return $this->_removeExtension($id);
+    }
+
+    /**
+     * Get a certificate or CRL Extension
+     *
+     * Returns the extension if it exists and false if not
+     *
+     * @param String $id
+     * @param Array $cert optional
+     * @access public
+     * @return Mixed
+     */
+    function getExtension($id, $cert = NULL)
+    {
+        return $this->_getExtension($id, $cert);
+    }
+
+    /**
+     * Returns a list of all extensions in use in certificate or CRL
+     *
+     * @param array $cert optional
+     * @access public
+     * @return Array
+     */
+    function getExtensions($cert = NULL)
+    {
+        return $this->_getExtensions($cert);
+    }
+
+    /**
+     * Set a certificate or CRL Extension
      *
      * @param String $id
      * @param Mixed $value
@@ -3335,9 +3360,9 @@ class File_X509 {
      * @access public
      * @return Boolean
      */
-    function setCRLExtension($id, $value, $critical = false, $replace = true)
+    function setExtension($id, $value, $critical = false, $replace = true)
     {
-        return $this->setExtension($id, $value, $critical, $replace, 'tbsCertList/crlExtensions');
+        return $this->_setExtension($id, $value, $critical, $replace);
     }
 
     /**
@@ -3471,6 +3496,18 @@ class File_X509 {
         $this->domains = func_get_args();
         $this->removeDNProp('id-at-commonName');
         $this->setDNProp('id-at-commonName', $this->domains[0]);
+    }
+
+    /**
+     * Helper function to build domain array
+     *
+     * @access private
+     * @param String $domain
+     * @return Array
+     */
+    function _dnsName($domain)
+    {
+        return array('dNSName' => $domain);
     }
 
     /**
@@ -3609,7 +3646,7 @@ class File_X509 {
     {
         if (is_array($rclist = &$this->_subArray($this->currentCert, 'tbsCertList/revokedCertificates'))) {
             if (($i = $this->_revokedCertificate($rclist, $serial)) !== false) {
-                return $this->removeExtension($id, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
+                return $this->_removeExtension($id, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
             }
         }
 
@@ -3635,7 +3672,7 @@ class File_X509 {
 
         if (is_array($rclist = $this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
             if (($i = $this->_revokedCertificate($rclist, $serial)) !== false) {
-                return $this->getExtension($id, $crl,  "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
+                return $this->_getExtension($id, $crl,  "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
             }
         }
 
@@ -3658,7 +3695,7 @@ class File_X509 {
 
         if (is_array($rclist = $this->_subArray($crl, 'tbsCertList/revokedCertificates'))) {
             if (($i = $this->_revokedCertificate($rclist, $serial)) !== false) {
-                return $this->getExtensions($crl, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
+                return $this->_getExtensions($crl, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
             }
         }
 
@@ -3681,7 +3718,7 @@ class File_X509 {
         if (isset($this->currentCert['tbsCertList'])) {
             if (is_array($rclist = &$this->_subArray($this->currentCert, 'tbsCertList/revokedCertificates', true))) {
                 if (($i = $this->_revokedCertificate($rclist, $serial, true)) !== false) {
-                    return $this->setExtension($id, $value, $critical, $replace, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
+                    return $this->_setExtension($id, $value, $critical, $replace, "tbsCertList/revokedCertificates/$i/crlEntryExtensions");
                 }
             }
         }

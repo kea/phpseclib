@@ -937,7 +937,7 @@ class Crypt_DES {
             if (($length & 7) == 0) {
                 return $text;
             } else {
-                user_error("The plaintext's length ($length) is not a multiple of the block size (8)", E_USER_NOTICE);
+                user_error("The plaintext's length ($length) is not a multiple of the block size (8)", E_USER_WARNING);
                 $this->padding = true;
             }
         }

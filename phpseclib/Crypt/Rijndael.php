@@ -1365,7 +1365,7 @@ class Crypt_Rijndael {
             if ($length % $this->block_size == 0) {
                 return $text;
             } else {
-                user_error("The plaintext's length ($length) is not a multiple of the block size ({$this->block_size})", E_USER_NOTICE);
+                user_error("The plaintext's length ($length) is not a multiple of the block size ({$this->block_size})", E_USER_WARNING);
                 $this->padding = true;
             }
         }
