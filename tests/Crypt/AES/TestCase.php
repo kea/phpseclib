@@ -4,8 +4,15 @@
  * @copyright  MMXII Andreas Fischer
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
-
 use phpseclib\Crypt_AES;
+use phpseclib\Crypt_DES;
+use phpseclib\Crypt_Hash;
+use phpseclib\Crypt_Random;
+use phpseclib\Crypt_RSA;
+use phpseclib\Crypt_RC4;
+use phpseclib\Crypt_Rijndael;
+use phpseclib\Crypt_TripleDES;
+use phpseclib\Math_BigInteger;
 
 abstract class Crypt_AES_TestCase extends PHPUnit_Framework_TestCase
 {
@@ -24,15 +31,29 @@ abstract class Crypt_AES_TestCase extends PHPUnit_Framework_TestCase
     );
 
 
-	public function setUp()
-	{
+    static public function setUpBeforeClass()
+    {
+        if (!defined('CRYPT_HASH_MODE'))
+        {
+            define('CRYPT_HASH_MODE', Crypt_Hash::MODE_INTERNAL);
+        }
+    }
 
-	}
+    public function setUp()
+    {
+        if (defined('CRYPT_HASH_MODE') && CRYPT_HASH_MODE !== Crypt_Hash::MODE_INTERNAL)
+        {
+            $this->markTestSkipped('Skipping test because CRYPT_HASH_MODE is not defined as Crypt_Hash::MODE_INTERNAL.');
+        }
+    }
 
-	protected function assertRecoverable($string, $mode, $keylen)
+	protected function assertRecoverable($string, $mode, $keylen, $password=false)
 	{
         $cipher = new Crypt_AES($mode);
-        $cipher->setKeyLength($keylen);
+        if($password)
+            $cipher->setPassword($password);
+        else
+            $cipher->setKeyLength($keylen);
         $encrypted = $cipher->encrypt($string);
         $decrypted = $cipher->decrypt($encrypted);
 		$this->assertEquals(
