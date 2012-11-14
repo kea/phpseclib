@@ -10,7 +10,7 @@ class Net_Socket
     {
         $this->socket = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->socket) {
-            throw new Exception("Cannot connect to $host. Error $errno. $errstr");
+            throw new \Exception("Cannot connect to $host. Error $errno. $errstr");
         }
     }
 
