@@ -991,6 +991,9 @@ class Crypt_TripleDES {
      */
     function _pad($text)
     {
+        if(!$this->paddable)
+            return $text;
+
         $length = strlen($text);
 
         if (!$this->padding) {
@@ -1017,7 +1020,7 @@ class Crypt_TripleDES {
      */
     function _unpad($text)
     {
-        if (!$this->padding) {
+        if (!$this->padding || !$this->paddable) {
             return $text;
         }
 

@@ -933,7 +933,10 @@ class Crypt_DES {
     {
         if(!$this->paddable)
             return $text;
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
         $length = strlen($text);
 
         if (!$this->padding) {
