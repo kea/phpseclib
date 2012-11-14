@@ -98,7 +98,7 @@ class Crypt_DES {
      *
      * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
      */
-    const MODE_CTR = 1;
+    const MODE_CTR = -1;
     /**
      * Encrypt / decrypt using the Electronic Code Book mode.
      *
