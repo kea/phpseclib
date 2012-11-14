@@ -339,7 +339,7 @@ class Crypt_TripleDES {
     {
         $length = strlen($key);
         if ($length > 8) {
-            $key = str_pad($key, 24, chr(0));
+            $key = str_pad(substr($key, 0, 24), 24, chr(0));
             // if $key is between 64 and 128-bits, use the first 64-bits as the last, per this:
             // http://php.net/function.mcrypt-encrypt#47973
             //$key = $length <= 16 ? substr_replace($key, substr($key, 0, 8), 16) : substr($key, 0, 24);
@@ -347,7 +347,6 @@ class Crypt_TripleDES {
             $key = str_pad($key, 8, chr(0));
         }
         $this->key = $key;
-        var_dump($key);
         switch (true) {
             case CRYPT_DES_MODE == Crypt_DES::MODE_INTERNAL:
             case $this->mode == self::MODE_3CBC:
@@ -399,6 +398,7 @@ class Crypt_TripleDES {
                         $u = $hmac->hash($u);
                         $f^= $u;
                     }
+                    echo strlen($key).PHP_EOL;
                     $key.= $f;
                 }
         }
