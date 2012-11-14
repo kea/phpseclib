@@ -597,20 +597,20 @@ class Crypt_Rijndael {
 
         switch ($method) {
             default: // 'pbkdf2'
-                list(, , $hash, $salt, $count) = func_get_args();
-                if (!isset($hash)) {
-                    $hash = 'sha1';
+                //not the prettiest thing ever, but solves the undefined index issue with list()
+                $args = func_get_args();
+                $hash = 'sha1';
+                $salt = 'phpseclib/salt';
+                $count = 1000;
+                switch(count($args)){
+                    case 6:
+                    case 5:
+                        $count = $args[4];
+                    case 4:
+                        $salt = $args[3];
+                    case 3:
+                        $hash = $args[2];
                 }
-                // WPA and WPA use the SSID as the salt
-                if (!isset($salt)) {
-                    $salt = 'phpseclib/salt';
-                }
-                // RFC2898#section-4.2 uses 1,000 iterations by default
-                // WPA and WPA2 use 4,096.
-                if (!isset($count)) {
-                    $count = 1000;
-                }
-
                 $i = 1;
                 while (strlen($key) < $this->key_size) { // $dkLen == $this->key_size
                     //$dk.= $this->_pbkdf($password, $salt, $count, $i++);
