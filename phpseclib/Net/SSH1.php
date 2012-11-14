@@ -430,27 +430,6 @@ class Net_SSH1 {
      */
     function __construct($host, $port = 22, $timeout = 10, $cipher = self::CIPHER_3DES)
     {
-        $this->protocol_flags = array(
-            1  => 'self::MSG_DISCONNECT',
-            2  => 'self::SMSG_PUBLIC_KEY',
-            3  => 'self::CMSG_SESSION_KEY',
-            4  => 'self::CMSG_USER',
-            9  => 'self::CMSG_AUTH_PASSWORD',
-            10 => 'self::CMSG_REQUEST_PTY',
-            12 => 'self::CMSG_EXEC_SHELL',
-            13 => 'self::CMSG_EXEC_CMD',
-            14 => 'self::SMSG_SUCCESS',
-            15 => 'self::SMSG_FAILURE',
-            16 => 'self::CMSG_STDIN_DATA',
-            17 => 'self::SMSG_STDOUT_DATA',
-            18 => 'self::SMSG_STDERR_DATA',
-            19 => 'self::CMSG_EOF',
-            20 => 'self::SMSG_EXITSTATUS',
-            33 => 'self::CMSG_EXIT_CONFIRMATION'
-        );
-
-        $this->_define_array($this->protocol_flags);
-
         $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
             throw new \Exception(rtrim("Cannot connect to $host. Error $errno. $errstr"), E_USER_NOTICE);
@@ -1180,30 +1159,6 @@ class Net_SSH1 {
         $m = $m->modPow($key[0], $key[1]);
 
         return $m->toBytes();
-    }
-
-    /**
-     * Define Array
-     *
-     * Takes any number of arrays whose indices are integers and whose values are strings and defines a bunch of
-     * named constants from it, using the value as the name of the constant and the index as the value of the constant.
-     * If any of the constants that would be defined already exists, none of the constants will be defined.
-     *
-     * @param Array $array
-     * @access private
-     */
-    function _define_array()
-    {
-        $args = func_get_args();
-        foreach ($args as $arg) {
-            foreach ($arg as $key=>$value) {
-                if (!defined($value)) {
-                    define($value, $key);
-                } else {
-                    break 2;
-                }
-            }
-        }
     }
 
     /**
