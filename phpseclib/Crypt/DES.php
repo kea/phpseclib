@@ -723,7 +723,6 @@ class Crypt_DES {
             }
 
             $ret = $this->mode != 'ctr' ? $this->_unpad($plaintext) : $plaintext;
-echo $ret . PHP_EOL;
             return $ret;
         }
 
@@ -932,6 +931,9 @@ echo $ret . PHP_EOL;
      */
     function _pad($text)
     {
+        if(!$this->paddable)
+            return $text;
+
         $length = strlen($text);
 
         if (!$this->padding) {
