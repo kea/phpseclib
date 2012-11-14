@@ -5,6 +5,7 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 use phpseclib\Crypt_AES;
+use phpseclib\Crypt_Hash;
 
 abstract class Crypt_AES_TestCase extends PHPUnit_Framework_TestCase
 {
