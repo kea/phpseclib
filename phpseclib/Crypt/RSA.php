@@ -143,7 +143,7 @@ class Crypt_RSA {
     /**
      * ASN1 Sequence (with the constucted bit set)
      */
-    const ASN1_SEQUENCE = 8;
+    const ASN1_SEQUENCE = 48;
     /**#@-*/
 
     /**#@+
@@ -226,8 +226,10 @@ class Crypt_RSA {
     const PUBLIC_FORMAT_PKCS1 = 7;
     /**#@-*/
 
+    //TODO: make this settable
     const EXPONENT = 65537;
 
+    const COMMENT = 'phpseclib-generated-key';
     /**
      * Precomputed Zero
      *
@@ -432,10 +434,6 @@ class Crypt_RSA {
                 default:
                     define('CRYPT_RSA_MODE', self::MODE_INTERNAL);
             }
-        }
-
-        if (!defined('self::COMMENT')) {
-            define('self::COMMENT', 'phpseclib-generated-key');
         }
 
         $this->zero = new Math_BigInteger();
@@ -911,7 +909,7 @@ implementation are part of the standard, as well.
                             $crypto = new Crypt_AES();
                             break;
                         case 'DES-EDE3-CFB':
-                            $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CFB);
+                            $crypto = new Crypt_TripleDES(Crypt_DES::MODE_CFB);
                             break;
                         case 'DES-EDE3-CBC':
                             $crypto = new Crypt_TripleDES();
@@ -942,7 +940,6 @@ implementation are part of the standard, as well.
                 if ($this->_decodeLength($key) != strlen($key)) {
                     return false;
                 }
-
                 $tag = ord($this->_string_shift($key));
                 /* intended for keys for which OpenSSL's asn1parse returns the following:
 

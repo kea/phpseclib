@@ -1152,7 +1152,7 @@ class Net_SSH2 {
                 // $this->encrypt_block_size = 64 / 8 == the default
                 break;
             case '3des-ctr':
-                $this->encrypt = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
+                $this->encrypt = new Crypt_TripleDES(Crypt_DES::MODE_CTR);
                 // $this->encrypt_block_size = 64 / 8 == the default
                 break;
             case 'aes256-cbc':
@@ -1164,7 +1164,7 @@ class Net_SSH2 {
             case 'aes256-ctr':
             case 'aes192-ctr':
             case 'aes128-ctr':
-                $this->encrypt = new Crypt_AES(CRYPT_AES_MODE_CTR);
+                $this->encrypt = new Crypt_AES(Crypt_AES::MODE_CTR);
                 $this->encrypt_block_size = 16; // eg. 128 / 8
                 break;
             case 'arcfour':
@@ -1181,7 +1181,7 @@ class Net_SSH2 {
                 $this->decrypt = new Crypt_TripleDES();
                 break;
             case '3des-ctr':
-                $this->decrypt = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
+                $this->decrypt = new Crypt_TripleDES(Crypt_DES::MODE_CTR);
                 break;
             case 'aes256-cbc':
             case 'aes192-cbc':
@@ -1192,7 +1192,7 @@ class Net_SSH2 {
             case 'aes256-ctr':
             case 'aes192-ctr':
             case 'aes128-ctr':
-                $this->decrypt = new Crypt_AES(CRYPT_AES_MODE_CTR);
+                $this->decrypt = new Crypt_AES(Crypt_AES::MODE_CTR);
                 $this->decrypt_block_size = 16;
                 break;
             case 'arcfour':
@@ -1588,7 +1588,7 @@ class Net_SSH2 {
     function _privatekey_login($username, $privatekey, $mode = self::PRIVKEY_MODE_RSA)
     {
         // see http://tools.ietf.org/html/rfc4253#page-15
-        $publickey = $privatekey->getPublicKey(CRYPT_RSA_PUBLIC_FORMAT_RAW);
+        $publickey = $privatekey->getPublicKey(Crypt_RSA::PUBLIC_FORMAT_RAW);
         if ($publickey === false) {
             return false;
         }
@@ -1645,7 +1645,7 @@ class Net_SSH2 {
                 break;
             //case self::PRIVKEY_MODE_RSA:
             default:
-                $privatekey->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+                $privatekey->setSignatureMode(Crypt_RSA::SIGNATURE_PKCS1);
                 $signature = $privatekey->sign($data);
                 $signature = pack('Na*Na*', strlen('ssh-rsa'), 'ssh-rsa', strlen($signature), $signature);
         }
@@ -2816,8 +2816,8 @@ class Net_SSH2 {
                 $signature = $this->_string_shift($signature, $temp['length']);
 
                 $rsa = new Crypt_RSA();
-                $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
-                $rsa->loadKey(array('e' => $e, 'n' => $n), CRYPT_RSA_PUBLIC_FORMAT_RAW);
+                $rsa->setSignatureMode(Crypt_RSA::SIGNATURE_PKCS1);
+                $rsa->loadKey(array('e' => $e, 'n' => $n), Crypt_RSA::PUBLIC_FORMAT_RAW);
                 if (!$rsa->verify($this->exchange_hash, $signature)) {
                     throw new \Exception('Bad server signature', E_USER_NOTICE);
                     return $this->_disconnect(self::DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
