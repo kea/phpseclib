@@ -57,14 +57,14 @@ abstract class Crypt_Rijndael_TestCase extends PHPUnit_Framework_TestCase
         else
             $cipher->setKeyLength($keylen);
         $cipher->setBlockLength($blocklen);
-        #$encrypted = $cipher->encrypt($string);
-        #$decrypted = $cipher->decrypt($encrypted);
-		#$this->assertEquals(
-		#	$string,
-		#	$decrypted,
-		#	sprintf("Failed recovery with mode %s, keylen %s, blocklen %s. Asserting that '%s' equals to '%s'.",
-        #         $mode, $keylen, $blocklen, $string, $decrypted)
-		#);
+        $encrypted = $cipher->encrypt($string);
+        $decrypted = $cipher->decrypt($encrypted);
+		$this->assertEquals(
+			$string,
+			$decrypted,
+			sprintf("Failed recovery with mode %s, keylen %s, blocklen %s. Asserting that '%s' equals to '%s'.",
+                $mode, $keylen, $blocklen, $string, $decrypted)
+		);
 	}
 
 }
