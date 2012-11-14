@@ -950,7 +950,7 @@ class File_ASN1 {
             case FILE_ASN1_TYPE_OBJECT_IDENTIFIER:
                 $oid = preg_match('#(?:\d+\.)+#', $source) ? $source : array_search($source, $this->oids);
                 if ($oid === false) {
-                    throw new Exception('Invalid OID', E_USER_NOTICE);
+                    throw new \Exception('Invalid OID', E_USER_NOTICE);
                 }
                 $value = '';
                 $parts = explode('.', $oid);
@@ -1002,7 +1002,7 @@ class File_ASN1 {
                     $filters = $filters[$part];
                 }
                 if ($filters === false) {
-                    throw new Exception('No filters defined for ' . implode('/', $loc), E_USER_NOTICE);
+                    throw new \Exception('No filters defined for ' . implode('/', $loc), E_USER_NOTICE);
                 }
                 return $this->_encode_der($source, $filters + $mapping);
             case FILE_ASN1_TYPE_NULL:
@@ -1025,7 +1025,7 @@ class File_ASN1 {
                 $value = $source ? "\xFF" : "\x00";
                 break;
             default:
-                throw new Exception('Mapping provides no type definition for ' . implode('/', $this->location), E_USER_NOTICE);
+                throw new \Exception('Mapping provides no type definition for ' . implode('/', $this->location), E_USER_NOTICE);
         }
 
         if (isset($idx)) {

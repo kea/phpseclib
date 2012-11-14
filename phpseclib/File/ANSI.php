@@ -412,7 +412,7 @@ class File_ANSI {
 
                                                 default:
                                                     $this->ansi = '';
-                                                    throw new Exception('Unsupported attribute: ' . $mod);
+                                                    throw new \Exception('Unsupported attribute: ' . $mod);
                                                     break 2;
                                             }
 

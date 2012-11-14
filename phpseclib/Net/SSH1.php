@@ -423,7 +423,7 @@ class Net_SSH1 {
 
         $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
-            throw new Exception(rtrim("Cannot connect to $host. Error $errno. $errstr"), E_USER_NOTICE);
+            throw new \Exception(rtrim("Cannot connect to $host. Error $errno. $errstr"), E_USER_NOTICE);
         }
 
         $this->server_identification = $init_line = fgets($this->fsock, 255);
@@ -439,17 +439,17 @@ class Net_SSH1 {
         }
 
         if (!preg_match('#SSH-([0-9\.]+)-(.+)#', $init_line, $parts)) {
-            throw new Exception('Can only connect to SSH servers', E_USER_NOTICE);
+            throw new \Exception('Can only connect to SSH servers', E_USER_NOTICE);
         }
         if ($parts[1][0] != 1) {
-            throw new Exception("Cannot connect to SSH $parts[1] servers", E_USER_NOTICE);
+            throw new \Exception("Cannot connect to SSH $parts[1] servers", E_USER_NOTICE);
         }
 
         fputs($this->fsock, $this->identifier."\r\n");
 
         $response = $this->_get_binary_packet();
         if ($response[NET_SSH1_RESPONSE_TYPE] != NET_SSH1_SMSG_PUBLIC_KEY) {
-            throw new Exception('Expected SSH_SMSG_PUBLIC_KEY', E_USER_NOTICE);
+            throw new \Exception('Expected SSH_SMSG_PUBLIC_KEY', E_USER_NOTICE);
         }
 
         $anti_spoofing_cookie = $this->_string_shift($response[NET_SSH1_RESPONSE_DATA], 8);
@@ -536,7 +536,7 @@ class Net_SSH1 {
         $data = pack('C2a*na*N', NET_SSH1_CMSG_SESSION_KEY, $cipher, $anti_spoofing_cookie, 8 * strlen($double_encrypted_session_key), $double_encrypted_session_key, 0);
 
         if (!$this->_send_binary_packet($data)) {
-            throw new Exception('Error sending SSH_CMSG_SESSION_KEY', E_USER_NOTICE);
+            throw new \Exception('Error sending SSH_CMSG_SESSION_KEY', E_USER_NOTICE);
         }
 
         switch ($cipher) {
@@ -565,7 +565,7 @@ class Net_SSH1 {
         $response = $this->_get_binary_packet();
 
         if ($response[NET_SSH1_RESPONSE_TYPE] != NET_SSH1_SMSG_SUCCESS) {
-            throw new Exception('Expected SSH_SMSG_SUCCESS', E_USER_NOTICE);
+            throw new \Exception('Expected SSH_SMSG_SUCCESS', E_USER_NOTICE);
         }
 
         $this->bitmap = NET_SSH1_MASK_CONSTRUCTOR;
@@ -588,7 +588,7 @@ class Net_SSH1 {
         $data = pack('CNa*', NET_SSH1_CMSG_USER, strlen($username), $username);
 
         if (!$this->_send_binary_packet($data)) {
-            throw new Exception('Error sending SSH_CMSG_USER', E_USER_NOTICE);
+            throw new \Exception('Error sending SSH_CMSG_USER', E_USER_NOTICE);
         }
 
         $response = $this->_get_binary_packet();
@@ -597,13 +597,13 @@ class Net_SSH1 {
             $this->bitmap |= NET_SSH1_MASK_LOGIN;
             return true;
         } else if ($response[NET_SSH1_RESPONSE_TYPE] != NET_SSH1_SMSG_FAILURE) {
-            throw new Exception('Expected SSH_SMSG_SUCCESS or SSH_SMSG_FAILURE', E_USER_NOTICE);
+            throw new \Exception('Expected SSH_SMSG_SUCCESS or SSH_SMSG_FAILURE', E_USER_NOTICE);
         }
 
         $data = pack('CNa*', NET_SSH1_CMSG_AUTH_PASSWORD, strlen($password), $password);
 
         if (!$this->_send_binary_packet($data)) {
-            throw new Exception('Error sending SSH_CMSG_AUTH_PASSWORD', E_USER_NOTICE);
+            throw new \Exception('Error sending SSH_CMSG_AUTH_PASSWORD', E_USER_NOTICE);
         }
 
         // remove the username and password from the last logged packet
@@ -620,7 +620,7 @@ class Net_SSH1 {
         } else if ($response[NET_SSH1_RESPONSE_TYPE] == NET_SSH1_SMSG_FAILURE) {
             return false;
         } else {
-            throw new Exception('Expected SSH_SMSG_SUCCESS or SSH_SMSG_FAILURE', E_USER_NOTICE);
+            throw new \Exception('Expected SSH_SMSG_SUCCESS or SSH_SMSG_FAILURE', E_USER_NOTICE);
         }
     }
 
@@ -647,13 +647,13 @@ class Net_SSH1 {
     function exec($cmd, $block = true)
     {
         if (!($this->bitmap & NET_SSH1_MASK_LOGIN)) {
-            throw new Exception('Operation disallowed prior to login()', E_USER_NOTICE);
+            throw new \Exception('Operation disallowed prior to login()', E_USER_NOTICE);
         }
 
         $data = pack('CNa*', NET_SSH1_CMSG_EXEC_CMD, strlen($cmd), $cmd);
 
         if (!$this->_send_binary_packet($data)) {
-            throw new Exception('Error sending SSH_CMSG_EXEC_CMD', E_USER_NOTICE);
+            throw new \Exception('Error sending SSH_CMSG_EXEC_CMD', E_USER_NOTICE);
         }
 
         if (!$block) {
@@ -697,19 +697,19 @@ class Net_SSH1 {
         $data = pack('CNa*N4C', NET_SSH1_CMSG_REQUEST_PTY, strlen('vt100'), 'vt100', 24, 80, 0, 0, NET_SSH1_TTY_OP_END);
 
         if (!$this->_send_binary_packet($data)) {
-            throw new Exception('Error sending SSH_CMSG_REQUEST_PTY', E_USER_NOTICE);
+            throw new \Exception('Error sending SSH_CMSG_REQUEST_PTY', E_USER_NOTICE);
         }
 
         $response = $this->_get_binary_packet();
 
         if ($response[NET_SSH1_RESPONSE_TYPE] != NET_SSH1_SMSG_SUCCESS) {
-            throw new Exception('Expected SSH_SMSG_SUCCESS', E_USER_NOTICE);
+            throw new \Exception('Expected SSH_SMSG_SUCCESS', E_USER_NOTICE);
         }
 
         $data = pack('C', NET_SSH1_CMSG_EXEC_SHELL);
 
         if (!$this->_send_binary_packet($data)) {
-            throw new Exception('Error sending SSH_CMSG_EXEC_SHELL', E_USER_NOTICE);
+            throw new \Exception('Error sending SSH_CMSG_EXEC_SHELL', E_USER_NOTICE);
         }
 
         $this->bitmap |= NET_SSH1_MASK_SHELL;
@@ -747,11 +747,11 @@ class Net_SSH1 {
     function read($expect, $mode = NET_SSH1_READ_SIMPLE)
     {
         if (!($this->bitmap & NET_SSH1_MASK_LOGIN)) {
-            throw new Exception('Operation disallowed prior to login()', E_USER_NOTICE);
+            throw new \Exception('Operation disallowed prior to login()', E_USER_NOTICE);
         }
 
         if (!($this->bitmap & NET_SSH1_MASK_SHELL) && !$this->_initShell()) {
-            throw new Exception('Unable to initiate an interactive shell session', E_USER_NOTICE);
+            throw new \Exception('Unable to initiate an interactive shell session', E_USER_NOTICE);
         }
 
         $match = $expect;
@@ -780,17 +780,17 @@ class Net_SSH1 {
     function interactiveWrite($cmd)
     {
         if (!($this->bitmap & NET_SSH1_MASK_LOGIN)) {
-            throw new Exception('Operation disallowed prior to login()', E_USER_NOTICE);
+            throw new \Exception('Operation disallowed prior to login()', E_USER_NOTICE);
         }
 
         if (!($this->bitmap & NET_SSH1_MASK_SHELL) && !$this->_initShell()) {
-            throw new Exception('Unable to initiate an interactive shell session', E_USER_NOTICE);
+            throw new \Exception('Unable to initiate an interactive shell session', E_USER_NOTICE);
         }
 
         $data = pack('CNa*', NET_SSH1_CMSG_STDIN_DATA, strlen($cmd), $cmd);
 
         if (!$this->_send_binary_packet($data)) {
-            throw new Exception('Error sending SSH_CMSG_STDIN', E_USER_NOTICE);
+            throw new \Exception('Error sending SSH_CMSG_STDIN', E_USER_NOTICE);
         }
 
         return true;
@@ -812,11 +812,11 @@ class Net_SSH1 {
     function interactiveRead()
     {
         if (!($this->bitmap & NET_SSH1_MASK_LOGIN)) {
-            throw new Exception('Operation disallowed prior to login()', E_USER_NOTICE);
+            throw new \Exception('Operation disallowed prior to login()', E_USER_NOTICE);
         }
 
         if (!($this->bitmap & NET_SSH1_MASK_SHELL) && !$this->_initShell()) {
-            throw new Exception('Unable to initiate an interactive shell session', E_USER_NOTICE);
+            throw new \Exception('Unable to initiate an interactive shell session', E_USER_NOTICE);
         }
 
         $read = array($this->fsock);
@@ -894,7 +894,7 @@ class Net_SSH1 {
     function _get_binary_packet()
     {
         if (feof($this->fsock)) {
-            throw new Exception('Connection closed prematurely', E_USER_NOTICE);
+            throw new \Exception('Connection closed prematurely', E_USER_NOTICE);
         }
 
         $temp = unpack('Nlength', fread($this->fsock, 4));
@@ -917,7 +917,7 @@ class Net_SSH1 {
         $temp = unpack('Ncrc', substr($raw, -4));
 
         //if ( $temp['crc'] != $this->_crc($padding . $type . $data) ) {
-        //    throw new Exception('Bad CRC in packet from server', E_USER_NOTICE);
+        //    throw new \Exception('Bad CRC in packet from server', E_USER_NOTICE);
         //    return false;
         //}
 
@@ -950,7 +950,7 @@ class Net_SSH1 {
      */
     function _send_binary_packet($data) {
         if (feof($this->fsock)) {
-            throw new Exception('Connection closed prematurely', E_USER_NOTICE);
+            throw new \Exception('Connection closed prematurely', E_USER_NOTICE);
         }
 
         if (defined('NET_SSH1_LOGGING')) {

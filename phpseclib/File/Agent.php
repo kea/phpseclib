@@ -146,8 +146,7 @@ class File_Agent
         } elseif (
             $type != FILE_AGENT_RSA_IDENTITIES_ANSWER &&
             $type != FILE_AGENT_IDENTITIES_ANSWER) {
-            // throw new \Exception("Unknown response from agent: $type");
-            return false;
+            throw new \Exception("Unknown response from agent: $type");
         }
 
         $buffer = $this->socket->readBytes($bufferLenght - 1);
@@ -283,30 +282,25 @@ class File_Agent
         );
 
         if (!$this->socket->isWritable()) {
-            // throw new Exception("Agent not connected");
-            return false;
+            throw new \Exception("Agent not connected");
         }
 
         $rc = $this->socket->writeBytes(pack("Na*", strlen($s), $s));
 
         if ($rc === false) {
-            // throw new Exception('Unable to write to the socket: '.
-            // socket_strerror(socket_last_error()));
-            return false;
+            throw new \Exception('Unable to write to the socket: '.socket_strerror(socket_last_error()));
         }
 
         $len = $this->readLength();
 
         if ($len < 8) {
-            // throw new Exception("Error protocol");
-            return false;
+            throw new \Exception("Error protocol");
         }
 
         $type = $this->readType();
 
         if ($type != FILE_AGENT_SIGN_RESPONSE) {
-            // throw new Exception("Error protocol");
-            return false;
+            throw new \Exception("Error protocol");
         }
 
         $s = $this->socket->readBytes($len - 1);
@@ -314,8 +308,7 @@ class File_Agent
         $signature = unpack('Nlen/a*blob', $s);
 
         if ($len != 5 + $signature['len']) {
-            // throw new Exception("Invalid sign");
-            return false;
+            throw new \Exception("Invalid sign");
         }
 
         return $signature['blob'];
