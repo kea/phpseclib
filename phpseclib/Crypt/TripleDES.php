@@ -257,7 +257,7 @@ class Crypt_TripleDES {
             $this->mode = self::MODE_3CBC;
             $this->des = array(
                     new Crypt_DES(Crypt_DES::MODE_CBC),
-                    new Crypt_DES(Crypt_DES::DES_MODE_CBC),
+                    new Crypt_DES(Crypt_DES::MODE_CBC),
                     new Crypt_DES(Crypt_DES::MODE_CBC)
                     );
 
@@ -347,6 +347,7 @@ class Crypt_TripleDES {
             $key = str_pad($key, 8, chr(0));
         }
         $this->key = $key;
+        var_dump($key);
         switch (true) {
             case CRYPT_DES_MODE == Crypt_DES::MODE_INTERNAL:
             case $this->mode == self::MODE_3CBC:

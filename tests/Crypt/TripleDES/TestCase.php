@@ -14,6 +14,7 @@ abstract class Crypt_TripleDES_TestCase extends PHPUnit_Framework_TestCase
         Crypt_DES::MODE_CTR,
         Crypt_DES::MODE_OFB,
         Crypt_DES::MODE_CFB,
+        Crypt_TripleDES::MODE_3CBC,
     );
 
     static public function setUpBeforeClass()

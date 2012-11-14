@@ -2,7 +2,7 @@
 
 class Crypt_TripleDES_TripleDESTest extends Crypt_TripleDES_TestCase
 {
-    public $string = "The derp fox herped the super-derpity derp. :D";    
+    public $string = "The derp fox herped the super-derpity derp. :D!!";    
     public $password = "supersecure";
     public $key = "thisisakey";
 
