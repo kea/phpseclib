@@ -1,6 +1,8 @@
 # phpseclib - PHP Secure Communications Library
 
-[![Build Status](https://secure.travis-ci.org/phpseclib/phpseclib.png?branch=master)](http://travis-ci.org/phpseclib/phpseclib)
+PHP 5.3+ ONLY branch
+
+[![Build Status](https://secure.travis-ci.org/slowbro/phpseclib.png?branch=5.3)](https://travis-ci.org/slowbro/phpseclib)
 
 MIT-licensed pure-PHP implementations of an arbitrary-precision integer
 arithmetic library, fully PKCS#1 (v2.1) compliant RSA, DES, 3DES, RC4, Rijndael,
