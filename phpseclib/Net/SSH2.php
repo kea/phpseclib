@@ -714,14 +714,14 @@ class Net_SSH2 {
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
-            throw new Exception(rtrim("Cannot connect to $host. Error $errno. $errstr"));
+            throw new \Exception(rtrim("Cannot connect to $host. Error $errno. $errstr"));
         }
         $elapsed = strtok(microtime(), ' ') + strtok('') - $start;
 
         $timeout-= $elapsed;
 
         if ($timeout <= 0) {
-            throw new Exception(rtrim("Cannot connect to $host. Timeout error"), E_USER_NOTICE);
+            throw new \Exception(rtrim("Cannot connect to $host. Timeout error"), E_USER_NOTICE);
         }
 
         $read = array($this->fsock);
@@ -733,7 +733,7 @@ class Net_SSH2 {
         // on windows this returns a "Warning: Invalid CRT parameters detected" error
         // the !count() is done as a workaround for <https://bugs.php.net/42682>
         if (!@stream_select($read, $write, $except, $sec, $usec) && !count($read)) {
-            throw new Exception(rtrim("Cannot connect to $host. Banner timeout"), E_USER_NOTICE);
+            throw new \Exception(rtrim("Cannot connect to $host. Banner timeout"), E_USER_NOTICE);
         }
 
         /* According to the SSH2 specs,
@@ -754,7 +754,7 @@ class Net_SSH2 {
         }
 
         if (feof($this->fsock)) {
-            throw new Exception('Connection closed by server', E_USER_NOTICE);
+            throw new \Exception('Connection closed by server', E_USER_NOTICE);
         }
 
         $ext = array();
@@ -787,18 +787,18 @@ class Net_SSH2 {
         }
 
         if ($matches[1] != '1.99' && $matches[1] != '2.0') {
-            throw new Exception("Cannot connect to SSH $matches[1] servers", E_USER_NOTICE);
+            throw new \Exception("Cannot connect to SSH $matches[1] servers", E_USER_NOTICE);
         }
 
         fputs($this->fsock, $this->identifier . "\r\n");
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
-            throw new Exception('Connection closed by server', E_USER_NOTICE);
+            throw new \Exception('Connection closed by server', E_USER_NOTICE);
         }
 
         if (ord($response[0]) != self::MSG_KEXINIT) {
-            throw new Exception('Expected SSH_MSG_KEXINIT', E_USER_NOTICE);
+            throw new \Exception('Expected SSH_MSG_KEXINIT', E_USER_NOTICE);
         }
 
         if (!$this->_key_exchange($response)) {
@@ -943,7 +943,7 @@ class Net_SSH2 {
         for ($i = 0; $i < count($encryption_algorithms) && !in_array($encryption_algorithms[$i], $this->encryption_algorithms_server_to_client); $i++);
         if ($i == count($encryption_algorithms)) {
             $this->_disconnect(self::DISCONNECT_KEY_EXCHANGE_FAILED);
-            throw new Exception('No compatible server to client encryption algorithms found', E_USER_NOTICE);
+            throw new \Exception('No compatible server to client encryption algorithms found', E_USER_NOTICE);
         }
 
         // we don't initialize any crypto-objects, yet - we do that, later. for now, we need the lengths to make the
@@ -980,7 +980,7 @@ class Net_SSH2 {
         for ($i = 0; $i < count($encryption_algorithms) && !in_array($encryption_algorithms[$i], $this->encryption_algorithms_client_to_server); $i++);
         if ($i == count($encryption_algorithms)) {
             $this->_disconnect(self::DISCONNECT_KEY_EXCHANGE_FAILED);
-            throw new Exception('No compatible client to server encryption algorithms found', E_USER_NOTICE);
+            throw new \Exception('No compatible client to server encryption algorithms found', E_USER_NOTICE);
         }
 
         $encrypt = $encryption_algorithms[$i];
@@ -1018,7 +1018,7 @@ class Net_SSH2 {
         for ($i = 0; $i < count($kex_algorithms) && !in_array($kex_algorithms[$i], $this->kex_algorithms); $i++);
         if ($i == count($kex_algorithms)) {
             $this->_disconnect(self::DISCONNECT_KEY_EXCHANGE_FAILED);
-            throw new Exception('No compatible key exchange algorithms found', E_USER_NOTICE);
+            throw new \Exception('No compatible key exchange algorithms found', E_USER_NOTICE);
         }
 
         switch ($kex_algorithms[$i]) {
@@ -1070,17 +1070,17 @@ class Net_SSH2 {
         $data = pack('CNa*', self::MSG_KEXDH_INIT, strlen($eBytes), $eBytes);
 
         if (!$this->_send_binary_packet($data)) {
-            throw new Exception('Connection closed by server', E_USER_NOTICE);
+            throw new \Exception('Connection closed by server', E_USER_NOTICE);
         }
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
-            throw new Exception('Connection closed by server', E_USER_NOTICE);
+            throw new \Exception('Connection closed by server', E_USER_NOTICE);
         }
         extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         if ($type != self::MSG_KEXDH_REPLY) {
-            throw new Exception('Expected SSH_MSG_KEXDH_REPLY', E_USER_NOTICE);
+            throw new \Exception('Expected SSH_MSG_KEXDH_REPLY', E_USER_NOTICE);
         }
 
         $temp = unpack('Nlength', $this->_string_shift($response, 4));
@@ -1118,12 +1118,12 @@ class Net_SSH2 {
         for ($i = 0; $i < count($server_host_key_algorithms) && !in_array($server_host_key_algorithms[$i], $this->server_host_key_algorithms); $i++);
         if ($i == count($server_host_key_algorithms)) {
             $this->_disconnect(self::DISCONNECT_KEY_EXCHANGE_FAILED);
-            throw new Exception('No compatible server host key algorithms found', E_USER_NOTICE);
+            throw new \Exception('No compatible server host key algorithms found', E_USER_NOTICE);
         }
 
         if ($public_key_format != $server_host_key_algorithms[$i] || $this->signature_format != $server_host_key_algorithms[$i]) {
             $this->_disconnect(self::DISCONNECT_KEY_EXCHANGE_FAILED);
-            throw new Exception('Sever Host Key Algorithm Mismatch', E_USER_NOTICE);
+            throw new \Exception('Sever Host Key Algorithm Mismatch', E_USER_NOTICE);
         }
 
         $packet = pack('C',
@@ -1137,13 +1137,13 @@ class Net_SSH2 {
         $response = $this->_get_binary_packet();
 
         if ($response === false) {
-            throw new Exception('Connection closed by server', E_USER_NOTICE);
+            throw new \Exception('Connection closed by server', E_USER_NOTICE);
         }
 
         extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         if ($type != self::MSG_NEWKEYS) {
-            throw new Exception('Expected SSH_MSG_NEWKEYS', E_USER_NOTICE);
+            throw new \Exception('Expected SSH_MSG_NEWKEYS', E_USER_NOTICE);
         }
 
         switch ($encrypt) {
@@ -1257,7 +1257,7 @@ class Net_SSH2 {
         for ($i = 0; $i < count($mac_algorithms) && !in_array($mac_algorithms[$i], $this->mac_algorithms_client_to_server); $i++);
         if ($i == count($mac_algorithms)) {
             $this->_disconnect(self::DISCONNECT_KEY_EXCHANGE_FAILED);
-            throw new Exception('No compatible client to server message authentication algorithms found', E_USER_NOTICE);
+            throw new \Exception('No compatible client to server message authentication algorithms found', E_USER_NOTICE);
         }
 
         $createKeyLength = 0; // ie. $mac_algorithms[$i] == 'none'
@@ -1282,7 +1282,7 @@ class Net_SSH2 {
         for ($i = 0; $i < count($mac_algorithms) && !in_array($mac_algorithms[$i], $this->mac_algorithms_server_to_client); $i++);
         if ($i == count($mac_algorithms)) {
             $this->_disconnect(self::DISCONNECT_KEY_EXCHANGE_FAILED);
-            throw new Exception('No compatible server to client message authentication algorithms found', E_USER_NOTICE);
+            throw new \Exception('No compatible server to client message authentication algorithms found', E_USER_NOTICE);
         }
 
         $checkKeyLength = 0;
@@ -1324,14 +1324,14 @@ class Net_SSH2 {
         for ($i = 0; $i < count($compression_algorithms) && !in_array($compression_algorithms[$i], $this->compression_algorithms_server_to_client); $i++);
         if ($i == count($compression_algorithms)) {
             $this->_disconnect(self::DISCONNECT_KEY_EXCHANGE_FAILED);
-            throw new Exception('No compatible server to client compression algorithms found', E_USER_NOTICE);
+            throw new \Exception('No compatible server to client compression algorithms found', E_USER_NOTICE);
         }
         $this->decompress = $compression_algorithms[$i] == 'zlib';
 
         for ($i = 0; $i < count($compression_algorithms) && !in_array($compression_algorithms[$i], $this->compression_algorithms_client_to_server); $i++);
         if ($i == count($compression_algorithms)) {
             $this->_disconnect(self::DISCONNECT_KEY_EXCHANGE_FAILED);
-            throw new Exception('No compatible client to server compression algorithms found', E_USER_NOTICE);
+            throw new \Exception('No compatible client to server compression algorithms found', E_USER_NOTICE);
         }
         $this->compress = $compression_algorithms[$i] == 'zlib';
 
@@ -1366,13 +1366,13 @@ class Net_SSH2 {
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
-            throw new Exception('Connection closed by server', E_USER_NOTICE);
+            throw new \Exception('Connection closed by server', E_USER_NOTICE);
         }
 
         extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         if ($type != self::MSG_SERVICE_ACCEPT) {
-            throw new Exception('Expected SSH_MSG_SERVICE_ACCEPT', E_USER_NOTICE);
+            throw new \Exception('Expected SSH_MSG_SERVICE_ACCEPT', E_USER_NOTICE);
         }
 
         if (is_object($password)) {
@@ -1404,7 +1404,7 @@ class Net_SSH2 {
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
-            throw new Exception('Connection closed by server', E_USER_NOTICE);
+            throw new \Exception('Connection closed by server', E_USER_NOTICE);
         }
 
         extract(unpack('Ctype', $this->_string_shift($response, 1)));
@@ -1502,7 +1502,7 @@ class Net_SSH2 {
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
-            throw new Exception('Connection closed by server', E_USER_NOTICE);
+            throw new \Exception('Connection closed by server', E_USER_NOTICE);
         }
 
         extract(unpack('Ctype', $this->_string_shift($response, 1)));
@@ -1614,7 +1614,7 @@ class Net_SSH2 {
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
-            throw new Exception('Connection closed by server', E_USER_NOTICE);
+            throw new \Exception('Connection closed by server', E_USER_NOTICE);
         }
 
         extract(unpack('Ctype', $this->_string_shift($response, 1)));
@@ -1658,7 +1658,7 @@ class Net_SSH2 {
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
-            throw new Exception('Connection closed by server', E_USER_NOTICE);
+            throw new \Exception('Connection closed by server', E_USER_NOTICE);
         }
 
         extract(unpack('Ctype', $this->_string_shift($response, 1)));
@@ -1810,7 +1810,7 @@ class Net_SSH2 {
 
         $response = $this->_get_binary_packet();
         if ($response === false) {
-            throw new Exception('Connection closed by server', E_USER_NOTICE);
+            throw new \Exception('Connection closed by server', E_USER_NOTICE);
         }
 
         list(, $type) = unpack('C', $this->_string_shift($response, 1));
@@ -1821,7 +1821,7 @@ class Net_SSH2 {
             case self::MSG_CHANNEL_FAILURE:
             default:
                 $this->_disconnect(self::DISCONNECT_BY_APPLICATION);
-                throw new Exception('Unable to request pseudo-terminal', E_USER_NOTICE);
+                throw new \Exception('Unable to request pseudo-terminal', E_USER_NOTICE);
         }
 
         $packet = pack('CNNa*C',
@@ -1861,11 +1861,11 @@ class Net_SSH2 {
         $this->curTimeout = $this->timeout;
 
         if (!($this->bitmap & self::MASK_LOGIN)) {
-            throw new Exception('Operation disallowed prior to login()', E_USER_NOTICE);
+            throw new \Exception('Operation disallowed prior to login()', E_USER_NOTICE);
         }
 
         if (!($this->bitmap & self::MASK_SHELL) && !$this->_initShell()) {
-            throw new Exception('Unable to initiate an interactive shell session', E_USER_NOTICE);
+            throw new \Exception('Unable to initiate an interactive shell session', E_USER_NOTICE);
         }
 
         $match = $expect;
@@ -1898,11 +1898,11 @@ class Net_SSH2 {
     function write($cmd)
     {
         if (!($this->bitmap & self::MASK_LOGIN)) {
-            throw new Exception('Operation disallowed prior to login()', E_USER_NOTICE);
+            throw new \Exception('Operation disallowed prior to login()', E_USER_NOTICE);
         }
 
         if (!($this->bitmap & self::MASK_SHELL) && !$this->_initShell()) {
-            throw new Exception('Unable to initiate an interactive shell session', E_USER_NOTICE);
+            throw new \Exception('Unable to initiate an interactive shell session', E_USER_NOTICE);
         }
 
         return $this->_send_channel_packet(self::CHANNEL_SHELL, $cmd);
@@ -1946,7 +1946,7 @@ class Net_SSH2 {
     function _get_binary_packet()
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
-            throw new Exception('Connection closed prematurely', E_USER_NOTICE);
+            throw new \Exception('Connection closed prematurely', E_USER_NOTICE);
         }
 
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
@@ -1961,7 +1961,7 @@ class Net_SSH2 {
             $raw = $this->decrypt->decrypt($raw);
         }
         if ($raw === false) {
-            throw new Exception('Unable to decrypt content', E_USER_NOTICE);
+            throw new \Exception('Unable to decrypt content', E_USER_NOTICE);
         }
 
         extract(unpack('Npacket_length/Cpadding_length', $this->_string_shift($raw, 5)));
@@ -1984,7 +1984,7 @@ class Net_SSH2 {
         if ($this->hmac_check !== false) {
             $hmac = fread($this->fsock, $this->hmac_size);
             if ($hmac != $this->hmac_check->hash(pack('NNCa*', $this->get_seq_no, $packet_length, $padding_length, $payload . $padding))) {
-                throw new Exception('Invalid HMAC', E_USER_NOTICE);
+                throw new \Exception('Invalid HMAC', E_USER_NOTICE);
             }
         }
 
@@ -2148,7 +2148,7 @@ class Net_SSH2 {
 
             $response = $this->_get_binary_packet();
             if ($response === false) {
-                throw new Exception('Connection closed by server', E_USER_NOTICE);
+                throw new \Exception('Connection closed by server', E_USER_NOTICE);
             }
 
             if (empty($response)) {
@@ -2170,7 +2170,7 @@ class Net_SSH2 {
                         //case self::MSG_CHANNEL_OPEN_FAILURE:
                         default:
                             $this->_disconnect(self::DISCONNECT_BY_APPLICATION);
-                            throw new Exception('Unable to open channel', E_USER_NOTICE);
+                            throw new \Exception('Unable to open channel', E_USER_NOTICE);
                     }
                     break;
                 case self::MSG_CHANNEL_REQUEST:
@@ -2180,7 +2180,7 @@ class Net_SSH2 {
                         //case self::MSG_CHANNEL_FAILURE:
                         default:
                             $this->_disconnect(self::DISCONNECT_BY_APPLICATION);
-                            throw new Exception('Unable to request pseudo-terminal', E_USER_NOTICE);
+                            throw new \Exception('Unable to request pseudo-terminal', E_USER_NOTICE);
                     }
                 case self::MSG_CHANNEL_CLOSE:
                     return $type == self::MSG_CHANNEL_CLOSE ? true : $this->_get_channel_packet($client_channel, $skip_extended);
@@ -2269,7 +2269,7 @@ class Net_SSH2 {
                     break;
                 default:
                     $this->_disconnect(self::DISCONNECT_BY_APPLICATION);
-                    throw new Exception('Error reading channel data', E_USER_NOTICE);
+                    throw new \Exception('Error reading channel data', E_USER_NOTICE);
             }
         }
     }
@@ -2287,7 +2287,7 @@ class Net_SSH2 {
     function _send_binary_packet($data)
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
-            throw new Exception('Connection closed prematurely', E_USER_NOTICE);
+            throw new \Exception('Connection closed prematurely', E_USER_NOTICE);
         }
 
         //if ($this->compress) {
@@ -2771,7 +2771,7 @@ class Net_SSH2 {
                 $temp = unpack('Nlength', $this->_string_shift($signature, 4));
                 if ($temp['length'] != 40) {
                     $this->_disconnect(self::DISCONNECT_KEY_EXCHANGE_FAILED);
-                    throw new Exception('Invalid signature', E_USER_NOTICE);
+                    throw new \Exception('Invalid signature', E_USER_NOTICE);
                 }
 
                 $r = new Math_BigInteger($this->_string_shift($signature, 20), 256);
@@ -2779,7 +2779,7 @@ class Net_SSH2 {
 
                 if ($r->compare($q) >= 0 || $s->compare($q) >= 0) {
                     $this->_disconnect(self::DISCONNECT_KEY_EXCHANGE_FAILED);
-                    throw new Exception('Invalid signature', E_USER_NOTICE);
+                    throw new \Exception('Invalid signature', E_USER_NOTICE);
                 }
 
                 $w = $s->modInverse($q);
@@ -2799,7 +2799,7 @@ class Net_SSH2 {
 
                 if (!$v->equals($r)) {
                     $this->_disconnect(self::DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
-                    throw new Exception('Bad server signature', E_USER_NOTICE);
+                    throw new \Exception('Bad server signature', E_USER_NOTICE);
                 }
 
                 break;
@@ -2819,7 +2819,7 @@ class Net_SSH2 {
                 $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
                 $rsa->loadKey(array('e' => $e, 'n' => $n), CRYPT_RSA_PUBLIC_FORMAT_RAW);
                 if (!$rsa->verify($this->exchange_hash, $signature)) {
-                    throw new Exception('Bad server signature', E_USER_NOTICE);
+                    throw new \Exception('Bad server signature', E_USER_NOTICE);
                     return $this->_disconnect(self::DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
                 }
                 */
@@ -2835,7 +2835,7 @@ class Net_SSH2 {
 
                 if ($s->compare(new Math_BigInteger()) < 0 || $s->compare($n->subtract(new Math_BigInteger(1))) > 0) {
                     $this->_disconnect(self::DISCONNECT_KEY_EXCHANGE_FAILED);
-                    throw new Exception('Invalid signature', E_USER_NOTICE);
+                    throw new \Exception('Invalid signature', E_USER_NOTICE);
                 }
 
                 $s = $s->modPow($e, $n);
@@ -2846,12 +2846,12 @@ class Net_SSH2 {
 
                 if ($s != $h) {
                     $this->_disconnect(self::DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
-                    throw new Exception('Bad server signature', E_USER_NOTICE);
+                    throw new \Exception('Bad server signature', E_USER_NOTICE);
                 }
                 break;
             default:
                 $this->_disconnect(self::DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
-                throw new Exception('Unsupported signature format', E_USER_NOTICE);
+                throw new \Exception('Unsupported signature format', E_USER_NOTICE);
         }
 
         return $this->signature_format . ' ' . base64_encode($this->server_public_host_key);
