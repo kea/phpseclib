@@ -13,7 +13,6 @@ class Crypt_AES_AESTest extends Crypt_AES_TestCase
 
     public function testAESPBKDF2(){
         foreach($this->modes as $mode){
-            echo "ran $mode\n";
             $this->assertRecoverable($this->string, $mode, false, "supersecure");
         }
     }
