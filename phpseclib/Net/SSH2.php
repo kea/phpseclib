@@ -85,91 +85,6 @@
 
 namespace phpseclib;
 
-/**#@+
- * Execution Bitmap Masks
- *
- * @see Net_SSH2::bitmap
- * @access private
- */
-define('NET_SSH2_MASK_CONSTRUCTOR', 0x00000001);
-define('NET_SSH2_MASK_LOGIN',       0x00000002);
-define('NET_SSH2_MASK_SHELL',       0x00000004);
-/**#@-*/
-
-/**#@+
- * Channel constants
- *
- * RFC4254 refers not to client and server channels but rather to sender and recipient channels.  we don't refer
- * to them in that way because RFC4254 toggles the meaning. the client sends a SSH_MSG_CHANNEL_OPEN message with
- * a sender channel and the server sends a SSH_MSG_CHANNEL_OPEN_CONFIRMATION in response, with a sender and a
- * recepient channel.  at first glance, you might conclude that SSH_MSG_CHANNEL_OPEN_CONFIRMATION's sender channel
- * would be the same thing as SSH_MSG_CHANNEL_OPEN's sender channel, but it's not, per this snipet:
- *     The 'recipient channel' is the channel number given in the original
- *     open request, and 'sender channel' is the channel number allocated by
- *     the other side.
- *
- * @see Net_SSH2::_send_channel_packet()
- * @see Net_SSH2::_get_channel_packet()
- * @access private
- */
-define('NET_SSH2_CHANNEL_EXEC', 0); // PuTTy uses 0x100
-define('NET_SSH2_CHANNEL_SHELL',1);
-/**#@-*/
-
-/**#@+
- * @access public
- * @see Net_SSH2::getLog()
- */
-/**
- * Returns the message numbers
- */
-define('NET_SSH2_LOG_SIMPLE',  1);
-/**
- * Returns the message content
- */
-define('NET_SSH2_LOG_COMPLEX', 2);
-/**
- * Outputs the content real-time
- */
-define('NET_SSH2_LOG_REALTIME', 3);
-/**
- * Dumps the content real-time to a file
- */
-define('NET_SSH2_LOG_REALTIME_FILE', 4);
-/**#@-*/
-
-/**#@+
- * @access public
- * @see Net_SSH2::read()
- */
-/**
- * Returns when a string matching $expect exactly is found
- */
-define('NET_SSH2_READ_SIMPLE',  1);
-/**
- * Returns when a string matching the regular expression $expect is found
- */
-define('NET_SSH2_READ_REGEX', 2);
-/**
- * Make sure that the log never gets larger than this
- */
-define('NET_SSH2_LOG_MAX_SIZE', 1024 * 1024);
-/**#@-*/
-
-/**#@+
- * @access private
- * @see Net_SSH2::_privatekey_login()
- */
-/**
- * Used when a Crypt_RSA object is passed as the second parameter of login()
- */
-define('NET_SSH2_PRIVKEY_MODE_RSA', 0);
-/**
- * Used when a File_Agent object is passed as the second parameter of login()
- */
-define('NET_SSH2_PRIVKEY_MODE_AGENT', 1);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of SSHv2.
  *
@@ -179,6 +94,151 @@ define('NET_SSH2_PRIVKEY_MODE_AGENT', 1);
  * @package Net_SSH2
  */
 class Net_SSH2 {
+
+    /**#@+
+     * Execution Bitmap Masks
+     *
+     * @see Net_SSH2::bitmap
+     * @access private
+     */
+    const MASK_CONSTRUCTOR = 0x00000001;
+    const MASK_LOGIN       = 0x00000002;
+    const MASK_SHELL       = 0x00000004;
+    
+    /**#@+
+     * Channel constants
+     *
+     * RFC4254 refers not to client and server channels but rather to sender and recipient channels.  we don't refer
+     * to them in that way because RFC4254 toggles the meaning. the client sends a SSH_MSG_CHANNEL_OPEN message with
+     * a sender channel and the server sends a SSH_MSG_CHANNEL_OPEN_CONFIRMATION in response, with a sender and a
+     * recepient channel.  at first glance, you might conclude that SSH_MSG_CHANNEL_OPEN_CONFIRMATION's sender channel
+     * would be the same thing as SSH_MSG_CHANNEL_OPEN's sender channel, but it's not, per this snipet:
+     *     The 'recipient channel' is the channel number given in the original
+     *     open request, and 'sender channel' is the channel number allocated by
+     *     the other side.
+     *
+     * @see Net_SSH2::_send_channel_packet()
+     * @see Net_SSH2::_get_channel_packet()
+     * @access private
+     */
+    const CHANNEL_EXEC  = 0; // PuTTy uses 0x100
+    const CHANNEL_SHELL = 1;
+    
+    /**
+     * Returns the message numbers
+     */
+    const LOG_SIMPLE = 1;
+
+    /**
+     * Returns the message content
+     */
+    const LOG_COMPLEX = 2;
+
+    /**
+     * Outputs the content real-time
+     */
+
+    const LOG_REALTIME = 3;
+    /**
+     * Dumps the content real-time to a file
+     */
+    const LOG_REALTIME_FILE = 4;    
+    
+    /**
+     * Returns when a string matching $expect exactly is found
+     */
+    const READ_SIMPLE = 1;
+
+    /**
+     * Returns when a string matching the regular expression $expect is found
+     */
+    const READ_REGEX = 2;
+
+    /**
+     * Make sure that the log never gets larger than this
+     */
+    const LOG_MAX_SIZE = 1048576;
+    
+    /**
+     * Used when a Crypt_RSA object is passed as the second parameter of login()
+     */
+    const PRIVKEY_MODE_RSA = 0;
+
+    /**
+     * Used when a File_Agent object is passed as the second parameter of login()
+     */
+    const PRIVKEY_MODE_AGENT = 1;
+
+    /**
+     * SSH Message constants
+     */
+    const MSG_DISCONNECT                 = 1;
+    const MSG_IGNORE                     = 2;
+    const MSG_UNIMPLEMENTED              = 3;
+    const MSG_DEBUG                      = 4;
+    const MSG_SERVICE_REQUEST            = 5;
+    const MSG_SERVICE_ACCEPT             = 6;
+    const MSG_KEXINIT                    = 20;
+    const MSG_NEWKEYS                    = 21;
+    const MSG_KEXDH_INIT                 = 30;
+    const MSG_KEXDH_REPLY                = 31;
+    const MSG_USERAUTH_REQUEST           = 50;
+    const MSG_USERAUTH_FAILURE           = 51;
+    const MSG_USERAUTH_SUCCESS           = 52;
+    const MSG_USERAUTH_BANNER            = 53;
+    const MSG_USERAUTH_PASSWD_CHANGEREQ  = 60;
+    const MSG_USERAUTH_PK_OK             = 60;
+    const MSG_USERAUTH_INFO_REQUEST      = 60;
+    const MSG_USERAUTH_INFO_RESPONSE     = 61;
+    const MSG_GLOBAL_REQUEST             = 80;
+    const MSG_REQUEST_SUCCESS            = 81;
+    const MSG_REQUEST_FAILURE            = 82;
+    const MSG_CHANNEL_OPEN               = 90;
+    const MSG_CHANNEL_OPEN_CONFIRMATION  = 91;
+    const MSG_CHANNEL_OPEN_FAILURE       = 92;
+    const MSG_CHANNEL_WINDOW_ADJUST      = 93;
+    const MSG_CHANNEL_DATA               = 94;
+    const MSG_CHANNEL_EXTENDED_DATA      = 95;
+    const MSG_CHANNEL_EOF                = 96;
+    const MSG_CHANNEL_CLOSE              = 97;
+    const MSG_CHANNEL_REQUEST            = 98;
+    const MSG_CHANNEL_SUCCESS            = 99;
+    const MSG_CHANNEL_FAILURE            = 100;
+
+    /**
+     * SSH Disconnect constants
+     */
+    const DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT    = 1;
+    const DISCONNECT_PROTOCOL_ERROR                 = 2;
+    const DISCONNECT_KEY_EXCHANGE_FAILED            = 3;
+    const DISCONNECT_RESERVED                       = 4;
+    const DISCONNECT_MAC_ERROR                      = 5;
+    const DISCONNECT_COMPRESSION_ERROR              = 6;
+    const DISCONNECT_SERVICE_NOT_AVAILABLE          = 7;
+    const DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED = 8;
+    const DISCONNECT_HOST_KEY_NOT_VERIFIABLE        = 9;
+    const DISCONNECT_CONNECTION_LOST                = 10;
+    const DISCONNECT_BY_APPLICATION                 = 11;
+    const DISCONNECT_TOO_MANY_CONNECTIONS           = 12;
+    const DISCONNECT_AUTH_CANCELLED_BY_USER         = 13;
+    const DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE = 14;
+    const DISCONNECT_ILLEGAL_USER_NAME              = 15;
+
+    /**
+     * Channel Open Failure Constants
+     */
+    const OPEN_ADMINISTRATIVELY_PROHIBITED = 1;
+
+    /**
+     * Terminal Modes Constants
+     */
+    const NET_SSH2_TTY_OP_END = 0;
+    
+    /**
+     * Channel Extended Data Type Constants
+     */
+    const NET_SSH2_EXTENDED_DATA_STDERR = 1;
+
     /**
      * The SSH identifier
      *
@@ -574,7 +634,7 @@ class Net_SSH2 {
     /**
      * Current log size
      *
-     * Should never exceed NET_SSH2_LOG_MAX_SIZE
+     * Should never exceed self::LOG_MAX_SIZE
      *
      * @see Net_SSH2::_send_binary_packet()
      * @see Net_SSH2::_get_binary_packet()
@@ -651,76 +711,6 @@ class Net_SSH2 {
      */
     function __construct($host, $port = 22, $timeout = 10)
     {
-        $this->message_numbers = array(
-            1 => 'NET_SSH2_MSG_DISCONNECT',
-            2 => 'NET_SSH2_MSG_IGNORE',
-            3 => 'NET_SSH2_MSG_UNIMPLEMENTED',
-            4 => 'NET_SSH2_MSG_DEBUG',
-            5 => 'NET_SSH2_MSG_SERVICE_REQUEST',
-            6 => 'NET_SSH2_MSG_SERVICE_ACCEPT',
-            20 => 'NET_SSH2_MSG_KEXINIT',
-            21 => 'NET_SSH2_MSG_NEWKEYS',
-            30 => 'NET_SSH2_MSG_KEXDH_INIT',
-            31 => 'NET_SSH2_MSG_KEXDH_REPLY',
-            50 => 'NET_SSH2_MSG_USERAUTH_REQUEST',
-            51 => 'NET_SSH2_MSG_USERAUTH_FAILURE',
-            52 => 'NET_SSH2_MSG_USERAUTH_SUCCESS',
-            53 => 'NET_SSH2_MSG_USERAUTH_BANNER',
-
-            80 => 'NET_SSH2_MSG_GLOBAL_REQUEST',
-            81 => 'NET_SSH2_MSG_REQUEST_SUCCESS',
-            82 => 'NET_SSH2_MSG_REQUEST_FAILURE',
-            90 => 'NET_SSH2_MSG_CHANNEL_OPEN',
-            91 => 'NET_SSH2_MSG_CHANNEL_OPEN_CONFIRMATION',
-            92 => 'NET_SSH2_MSG_CHANNEL_OPEN_FAILURE',
-            93 => 'NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST',
-            94 => 'NET_SSH2_MSG_CHANNEL_DATA',
-            95 => 'NET_SSH2_MSG_CHANNEL_EXTENDED_DATA',
-            96 => 'NET_SSH2_MSG_CHANNEL_EOF',
-            97 => 'NET_SSH2_MSG_CHANNEL_CLOSE',
-            98 => 'NET_SSH2_MSG_CHANNEL_REQUEST',
-            99 => 'NET_SSH2_MSG_CHANNEL_SUCCESS',
-            100 => 'NET_SSH2_MSG_CHANNEL_FAILURE'
-        );
-        $this->disconnect_reasons = array(
-            1 => 'NET_SSH2_DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT',
-            2 => 'NET_SSH2_DISCONNECT_PROTOCOL_ERROR',
-            3 => 'NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED',
-            4 => 'NET_SSH2_DISCONNECT_RESERVED',
-            5 => 'NET_SSH2_DISCONNECT_MAC_ERROR',
-            6 => 'NET_SSH2_DISCONNECT_COMPRESSION_ERROR',
-            7 => 'NET_SSH2_DISCONNECT_SERVICE_NOT_AVAILABLE',
-            8 => 'NET_SSH2_DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED',
-            9 => 'NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE',
-            10 => 'NET_SSH2_DISCONNECT_CONNECTION_LOST',
-            11 => 'NET_SSH2_DISCONNECT_BY_APPLICATION',
-            12 => 'NET_SSH2_DISCONNECT_TOO_MANY_CONNECTIONS',
-            13 => 'NET_SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER',
-            14 => 'NET_SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE',
-            15 => 'NET_SSH2_DISCONNECT_ILLEGAL_USER_NAME'
-        );
-        $this->channel_open_failure_reasons = array(
-            1 => 'NET_SSH2_OPEN_ADMINISTRATIVELY_PROHIBITED'
-        );
-        $this->terminal_modes = array(
-            0 => 'NET_SSH2_TTY_OP_END'
-        );
-        $this->channel_extended_data_type_codes = array(
-            1 => 'NET_SSH2_EXTENDED_DATA_STDERR'
-        );
-
-        $this->_define_array(
-            $this->message_numbers,
-            $this->disconnect_reasons,
-            $this->channel_open_failure_reasons,
-            $this->terminal_modes,
-            $this->channel_extended_data_type_codes,
-            array(60 => 'NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ'),
-            array(60 => 'NET_SSH2_MSG_USERAUTH_PK_OK'),
-            array(60 => 'NET_SSH2_MSG_USERAUTH_INFO_REQUEST',
-                  61 => 'NET_SSH2_MSG_USERAUTH_INFO_RESPONSE')
-        );
-
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $this->fsock = @fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$this->fsock) {
@@ -785,7 +775,7 @@ class Net_SSH2 {
             $this->message_number_log[] = '<-';
             $this->message_number_log[] = '->';
 
-            if (NET_SSH2_LOGGING == NET_SSH2_LOG_COMPLEX) {
+            if (NET_SSH2_LOGGING == self::LOG_COMPLEX) {
                 $this->message_log[] = $extra . $temp;
                 $this->message_log[] = $this->identifier . "\r\n";
             }
@@ -807,7 +797,7 @@ class Net_SSH2 {
             throw new Exception('Connection closed by server', E_USER_NOTICE);
         }
 
-        if (ord($response[0]) != NET_SSH2_MSG_KEXINIT) {
+        if (ord($response[0]) != self::MSG_KEXINIT) {
             throw new Exception('Expected SSH_MSG_KEXINIT', E_USER_NOTICE);
         }
 
@@ -2523,30 +2513,6 @@ class Net_SSH2 {
         $substr = substr($string, 0, $index);
         $string = substr($string, $index);
         return $substr;
-    }
-
-    /**
-     * Define Array
-     *
-     * Takes any number of arrays whose indices are integers and whose values are strings and defines a bunch of
-     * named constants from it, using the value as the name of the constant and the index as the value of the constant.
-     * If any of the constants that would be defined already exists, none of the constants will be defined.
-     *
-     * @param Array $array
-     * @access private
-     */
-    function _define_array()
-    {
-        $args = func_get_args();
-        foreach ($args as $arg) {
-            foreach ($arg as $key=>$value) {
-                if (!defined($value)) {
-                    define($value, $key);
-                } else {
-                    break 2;
-                }
-            }
-        }
     }
 
     /**
