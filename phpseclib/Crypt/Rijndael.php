@@ -792,7 +792,7 @@ class Crypt_Rijndael {
                 break;
             case self::MODE_OFB:
                 $xor = $this->encryptIV;
-                if (strlen($buffer)) {
+                if (is_string($buffer) && strlen($buffer)) {
                     for ($i = 0; $i < strlen($plaintext); $i+=$block_size) {
                         $xor = $this->_encryptBlock($xor);
                         $buffer.= $xor;
@@ -913,7 +913,7 @@ class Crypt_Rijndael {
                 break;
             case self::MODE_OFB:
                 $xor = $this->decryptIV;
-                if (strlen($buffer)) {
+                if (is_string($buffer) && strlen($buffer)) {
                     for ($i = 0; $i < strlen($ciphertext); $i+=$block_size) {
                         $xor = $this->_encryptBlock($xor);
                         $buffer.= $xor;
