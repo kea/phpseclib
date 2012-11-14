@@ -64,28 +64,6 @@
 
 namespace phpseclib;
 
-/**#@+
- * @access private
- * @see Crypt_RC4::Crypt_RC4()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_RC4_MODE_INTERNAL', 1);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_RC4_MODE_MCRYPT', 2);
-/**#@-*/
-
-/**#@+
- * @access private
- * @see Crypt_RC4::_crypt()
- */
-define('CRYPT_RC4_ENCRYPT', 0);
-define('CRYPT_RC4_DECRYPT', 1);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of RC4.
  *
@@ -95,6 +73,28 @@ define('CRYPT_RC4_DECRYPT', 1);
  * @package Crypt_RC4
  */
 class Crypt_RC4 {
+    /**#@+
+     * @access private
+     * @see Crypt_RC4::Crypt_RC4()
+     */
+    /**
+     * Toggles the internal implementation
+     */
+    const MODE_INTERNAL = 1;
+    /**
+     * Toggles the mcrypt implementation
+     */
+    const MODE_MCRYPT = 2;
+    /**#@-*/
+
+    /**#@+
+     * @access private
+     * @see Crypt_RC4::_crypt()
+     */
+    const ENCRYPT = 0;
+    const DECRYPT = 1;
+    /**#@-*/
+
     /**
      * The Key
      *
@@ -107,7 +107,7 @@ class Crypt_RC4 {
     /**
      * The Key Stream for encryption
      *
-     * If CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT, this will be equal to the mcrypt object
+     * If CRYPT_RC4_MODE == self::MODE_MCRYPT, this will be equal to the mcrypt object
      *
      * @see Crypt_RC4::setKey()
      * @var Array
@@ -118,7 +118,7 @@ class Crypt_RC4 {
     /**
      * The Key Stream for decryption
      *
-     * If CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT, this will be equal to the mcrypt object
+     * If CRYPT_RC4_MODE == self::MODE_MCRYPT, this will be equal to the mcrypt object
      *
      * @see Crypt_RC4::setKey()
      * @var Array
@@ -147,7 +147,7 @@ class Crypt_RC4 {
     /**
      * The Encryption Algorithm
      *
-     * Only used if CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT.  Only possible values are MCRYPT_RC4 or MCRYPT_ARCFOUR.
+     * Only used if CRYPT_RC4_MODE == self::MODE_MCRYPT.  Only possible values are MCRYPT_RC4 or MCRYPT_ARCFOUR.
      *
      * @see Crypt_RC4::Crypt_RC4()
      * @var Integer
@@ -178,20 +178,20 @@ class Crypt_RC4 {
         if ( !defined('CRYPT_RC4_MODE') ) {
             switch (true) {
                 case extension_loaded('mcrypt') && (defined('MCRYPT_ARCFOUR') || defined('MCRYPT_RC4')) && in_array('arcfour', mcrypt_list_algorithms()):
-                    define('CRYPT_RC4_MODE', CRYPT_RC4_MODE_MCRYPT);
+                    define('CRYPT_RC4_MODE', self::MODE_MCRYPT);
                     break;
                 default:
-                    define('CRYPT_RC4_MODE', CRYPT_RC4_MODE_INTERNAL);
+                    define('CRYPT_RC4_MODE', self::MODE_INTERNAL);
             }
         }
 
         switch ( CRYPT_RC4_MODE ) {
-            case CRYPT_RC4_MODE_MCRYPT:
+            case self::MODE_MCRYPT:
                 switch (true) {
                     case defined('MCRYPT_ARCFOUR'):
                         $this->mode = MCRYPT_ARCFOUR;
                         break;
-                    case defined('MCRYPT_RC4');
+                        case defined('MCRYPT_RC4');
                         $this->mode = MCRYPT_RC4;
                 }
         }
@@ -210,7 +210,7 @@ class Crypt_RC4 {
     {
         $this->key = $key;
 
-        if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
+        if ( CRYPT_RC4_MODE == self::MODE_MCRYPT ) {
             return;
         }
 
@@ -315,7 +315,7 @@ class Crypt_RC4 {
      */
     function encrypt($plaintext)
     {
-        return $this->_crypt($plaintext, CRYPT_RC4_ENCRYPT);
+        return $this->_crypt($plaintext, self::ENCRYPT);
     }
 
     /**
@@ -330,7 +330,7 @@ class Crypt_RC4 {
      */
     function decrypt($ciphertext)
     {
-        return $this->_crypt($ciphertext, CRYPT_RC4_DECRYPT);
+        return $this->_crypt($ciphertext, self::DECRYPT);
     }
 
     /**
@@ -344,8 +344,8 @@ class Crypt_RC4 {
      */
     function _crypt($text, $mode)
     {
-        if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
-            $keyStream = $mode == CRYPT_RC4_ENCRYPT ? 'encryptStream' : 'decryptStream';
+        if ( CRYPT_RC4_MODE == self::MODE_MCRYPT ) {
+            $keyStream = $mode == self::ENCRYPT ? 'encryptStream' : 'decryptStream';
 
             if ($this->$keyStream === false) {
                 $this->$keyStream = mcrypt_module_open($this->mode, '', MCRYPT_MODE_STREAM, '');
@@ -366,11 +366,11 @@ class Crypt_RC4 {
         }
 
         switch ($mode) {
-            case CRYPT_RC4_ENCRYPT:
+            case self::ENCRYPT:
                 $keyStream = $this->encryptStream;
                 list($i, $j) = $this->encryptIndex;
                 break;
-            case CRYPT_RC4_DECRYPT:
+            case self::DECRYPT:
                 $keyStream = $this->decryptStream;
                 list($i, $j) = $this->decryptIndex;
         }
@@ -388,11 +388,11 @@ class Crypt_RC4 {
 
         if ($this->continuousBuffer) {
             switch ($mode) {
-                case CRYPT_RC4_ENCRYPT:
+                case self::ENCRYPT:
                     $this->encryptStream = $keyStream;
                     $this->encryptIndex = array($i, $j);
                     break;
-                case CRYPT_RC4_DECRYPT:
+                case self::DECRYPT:
                     $this->decryptStream = $keyStream;
                     $this->decryptIndex = array($i, $j);
             }
@@ -453,7 +453,7 @@ class Crypt_RC4 {
      */
     function disableContinuousBuffer()
     {
-        if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_INTERNAL ) {
+        if ( CRYPT_RC4_MODE == self::MODE_INTERNAL ) {
             $this->encryptIndex = $this->decryptIndex = array(0, 0);
             $this->setKey($this->key);
         }
@@ -494,7 +494,7 @@ class Crypt_RC4 {
      */
     function __destruct()
     {
-        if ( CRYPT_RC4_MODE == CRYPT_RC4_MODE_MCRYPT ) {
+        if ( CRYPT_RC4_MODE == self::MODE_MCRYPT ) {
             $this->_closeMCrypt();
         }
     }
