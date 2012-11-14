@@ -253,8 +253,8 @@ class Crypt_TripleDES {
             }
         }
 
-        if ( $mode == Crypt_DES::MODE_3CBC ) {
-            $this->mode = Crypt_DES::MODE_3CBC;
+        if ( $mode == self::MODE_3CBC ) {
+            $this->mode = self::MODE_3CBC;
             $this->des = array(
                     new Crypt_DES(Crypt_DES::MODE_CBC),
                     new Crypt_DES(Crypt_DES::DES_MODE_CBC),
@@ -349,7 +349,7 @@ class Crypt_TripleDES {
         $this->key = $key;
         switch (true) {
             case CRYPT_DES_MODE == Crypt_DES::MODE_INTERNAL:
-            case $this->mode == Crypt_DES::MODE_3CBC:
+            case $this->mode == self::MODE_3CBC:
                 $this->des[0]->setKey(substr($key,  0, 8));
                 $this->des[1]->setKey(substr($key,  8, 8));
                 $this->des[2]->setKey(substr($key, 16, 8));
@@ -417,7 +417,7 @@ class Crypt_TripleDES {
     function setIV($iv)
     {
         $this->encryptIV = $this->decryptIV = $this->iv = str_pad(substr($iv, 0, 8), 8, chr(0));
-        if ($this->mode == Crypt_DES::MODE_3CBC) {
+        if ($this->mode == self::MODE_3CBC) {
             $this->des[0]->setIV($iv);
             $this->des[1]->setIV($iv);
             $this->des[2]->setIV($iv);
@@ -476,7 +476,7 @@ class Crypt_TripleDES {
         }
 
         // if the key is smaller then 8, do what we'd normally do
-        if ($this->mode == Crypt_DES::MODE_3CBC && strlen($this->key) > 8) {
+        if ($this->mode == self::MODE_3CBC && strlen($this->key) > 8) {
             $ciphertext = $this->des[2]->encrypt($this->des[1]->decrypt($this->des[0]->encrypt($plaintext)));
 
             return $ciphertext;
@@ -678,7 +678,7 @@ class Crypt_TripleDES {
      */
     function decrypt($ciphertext)
     {
-        if ($this->mode == Crypt_DES::MODE_3CBC && strlen($this->key) > 8) {
+        if ($this->mode == self::MODE_3CBC && strlen($this->key) > 8) {
             $plaintext = $this->des[0]->decrypt($this->des[1]->encrypt($this->des[2]->decrypt($ciphertext)));
 
             return $this->_unpad($plaintext);
@@ -918,7 +918,7 @@ class Crypt_TripleDES {
     function enableContinuousBuffer()
     {
         $this->continuousBuffer = true;
-        if ($this->mode == Crypt_DES::MODE_3CBC) {
+        if ($this->mode == self::MODE_3CBC) {
             $this->des[0]->enableContinuousBuffer();
             $this->des[1]->enableContinuousBuffer();
             $this->des[2]->enableContinuousBuffer();
@@ -939,7 +939,7 @@ class Crypt_TripleDES {
         $this->encryptIV = $this->iv;
         $this->decryptIV = $this->iv;
 
-        if ($this->mode == Crypt_DES::MODE_3CBC) {
+        if ($this->mode == self::MODE_3CBC) {
             $this->des[0]->disableContinuousBuffer();
             $this->des[1]->disableContinuousBuffer();
             $this->des[2]->disableContinuousBuffer();

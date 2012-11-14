@@ -2,25 +2,18 @@
 /**
  * @author     Katelyn Schiesser <katelyn.schiesser@gmail.com>
  */
-use phpseclib\Crypt_AES;
+use phpseclib\Crypt_DES;
 use phpseclib\Crypt_Hash;
 
-abstract class Crypt_AES_TestCase extends PHPUnit_Framework_TestCase
+abstract class Crypt_DES_TestCase extends PHPUnit_Framework_TestCase
 {
     public $modes = array(
-        Crypt_AES::MODE_ECB,
-        Crypt_AES::MODE_CBC,
-        Crypt_AES::MODE_CTR,
-        Crypt_AES::MODE_OFB,
-        Crypt_AES::MODE_CFB,
+        Crypt_DES::MODE_ECB,
+        Crypt_DES::MODE_CBC,
+        Crypt_DES::MODE_CTR,
+        Crypt_DES::MODE_OFB,
+        Crypt_DES::MODE_CFB,
     );
-
-    public $keylens = array(
-        128,
-        192,
-        256,
-    );
-
 
     static public function setUpBeforeClass()
     {
@@ -38,19 +31,19 @@ abstract class Crypt_AES_TestCase extends PHPUnit_Framework_TestCase
         }
     }
 
-	protected function assertRecoverable($string, $mode, $keylen, $password=false)
+	protected function assertRecoverable($string, $mode, $key, $password=false)
 	{
-        $cipher = new Crypt_AES($mode);
+        $cipher = new Crypt_DES($mode);
         if($password)
             $cipher->setPassword($password);
         else
-            $cipher->setKeyLength($keylen);
+            $cipher->setKey($key);
         $encrypted = $cipher->encrypt($string);
         $decrypted = $cipher->decrypt($encrypted);
 		$this->assertEquals(
 			$string,
 			$decrypted,
-			sprintf("Failed recovery with mode %s, keylen %s. Asserting that '%s' equals to '%s'.", $mode, $keylen, $string, $decrypted)
+			sprintf("Failed recovery with mode %s, key '%s', password '%s'. Asserting that '%s' equals to '%s'.", $mode, $key, $password, $string, $decrypted)
 		);
 	}
 

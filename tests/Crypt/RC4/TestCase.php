@@ -1,8 +1,6 @@
 <?php
 /**
- * @author     Andreas Fischer <bantu@phpbb.com>
- * @copyright  MMXII Andreas Fischer
- * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @author     Katelyn Schiesser <katelyn.schiesser@gmail.com>
  */
 use phpseclib\Crypt_RC4;
 use phpseclib\Crypt_Hash;
