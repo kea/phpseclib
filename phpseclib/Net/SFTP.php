@@ -320,7 +320,7 @@ class Net_SFTP extends Net_SSH2 {
      */
     function __construct($host, $port = 22, $timeout = 10)
     {
-        parent::Net_SSH2($host, $port, $timeout);
+        parent::__construct($host, $port, $timeout);
     }
 
     /**
