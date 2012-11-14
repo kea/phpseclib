@@ -12,9 +12,8 @@ class Crypt_AES_AESTest extends Crypt_AES_TestCase
     }
 
     public function testAESPBKDF2(){
-        foreach($this->modes as $mode){
-            $this->assertRecoverable($this->string, $mode, false, "supersecure");
-        }
+        foreach($this->modes as $mode)
+            $this->assertRecoverable($this->string, $mode, false, $this->password);
     }
 
 }

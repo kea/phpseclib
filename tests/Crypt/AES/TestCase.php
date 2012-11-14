@@ -5,14 +5,6 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 use phpseclib\Crypt_AES;
-use phpseclib\Crypt_DES;
-use phpseclib\Crypt_Hash;
-use phpseclib\Crypt_Random;
-use phpseclib\Crypt_RSA;
-use phpseclib\Crypt_RC4;
-use phpseclib\Crypt_Rijndael;
-use phpseclib\Crypt_TripleDES;
-use phpseclib\Math_BigInteger;
 
 abstract class Crypt_AES_TestCase extends PHPUnit_Framework_TestCase
 {
