@@ -398,7 +398,6 @@ class Crypt_TripleDES {
                         $u = $hmac->hash($u);
                         $f^= $u;
                     }
-                    echo strlen($key).PHP_EOL;
                     $key.= $f;
                 }
         }
