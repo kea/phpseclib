@@ -44,7 +44,7 @@ abstract class Crypt_AES_TestCase extends PHPUnit_Framework_TestCase
 	{
         $cipher = new Crypt_AES($mode);
         if($password)
-            $cipher->setPassword($password, 'pbkdf2', 'sha1', 'phpseclib/salt', 1000, 256 / 8);
+            $cipher->setPassword($password);
         else
             $cipher->setKeyLength($keylen);
         $encrypted = $cipher->encrypt($string);
