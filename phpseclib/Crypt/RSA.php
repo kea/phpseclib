@@ -417,7 +417,7 @@ class Crypt_RSA {
     /**
      * Key Blinding 
      */
-    var $blinding = true;
+    static $blinding = true;
 
     /**
      * The constructor
@@ -1321,8 +1321,8 @@ implementation are part of the standard, as well.
      *
      * @see _exponentiate()
      */
-    function setBlinding(bool $blinding){
-        $this->blinding = $blinding;
+    static function setBlinding(bool $blinding){
+        self::$blinding = $blinding;
     }
 
     /**
