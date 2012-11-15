@@ -251,7 +251,7 @@ class Math_BigInteger {
      * BigInteger mode
      * Defaults to false (determine in __constructor)
      */
-    var $mode = false;
+    static $mode = false;
 
     /**
      * Sets mode.
