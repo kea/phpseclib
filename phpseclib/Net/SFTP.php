@@ -256,7 +256,7 @@ class Net_SFTP extends Net_SSH2 {
      */
     function __construct($host, $port = 22, $timeout = 10)
     {
-        parent::Net_SSH2($host, $port, $timeout);
+        parent::__construct($host, $port, $timeout);
         $this->packet_types = array(
             1  => 'NET_SFTP_INIT',
             2  => 'NET_SFTP_VERSION',
@@ -399,9 +399,11 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         extract(unpack('Nversion', $this->_string_shift($response, 4)));
+        /* @var $version int */
         $this->version = $version;
         while (!empty($response)) {
             extract(unpack('Nlength', $this->_string_shift($response, 4)));
+            /* @var $length int */
             $key = $this->_string_shift($response, $length);
             extract(unpack('Nlength', $this->_string_shift($response, 4)));
             $value = $this->_string_shift($response, $length);
@@ -489,6 +491,7 @@ class Net_SFTP extends Net_SSH2 {
 
         if ($this->version > 2) {
             extract(unpack('Nlength', $this->_string_shift($response, 4)));
+            /* @var $length int */
             $this->sftp_errors[] = $error . ': ' . $this->_string_shift($response, $length);
         } else {
             $this->sftp_errors[] = $error;
@@ -572,6 +575,7 @@ class Net_SFTP extends Net_SSH2 {
                 // at is the first part and that part is defined the same in SFTP versions 3 through 6.
                 $this->_string_shift($response, 4); // skip over the count - it should be 1, anyway
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                /* @var $length int */
                 $realpath = $this->_string_shift($response, $length);
                 // the following is SFTPv3 only code.  see Net_SFTP::_parseLongname() for more information.
                 // per the above comment, this is a shot in the dark that, on most servers, won't help us in determining
@@ -655,6 +659,7 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+        /* @var $status int */
         if ($status != NET_SFTP_STATUS_OK) {
             $this->_logError($response, $status);
             return false;
@@ -745,8 +750,10 @@ class Net_SFTP extends Net_SSH2 {
             switch ($this->packet_type) {
                 case NET_SFTP_NAME:
                     extract(unpack('Ncount', $this->_string_shift($response, 4)));
+                    /* @var $count int */
                     for ($i = 0; $i < $count; $i++) {
                         extract(unpack('Nlength', $this->_string_shift($response, 4)));
+                        /* @var $length int */
                         $shortname = $this->_string_shift($response, $length);
                         extract(unpack('Nlength', $this->_string_shift($response, 4)));
                         $longname = $this->_string_shift($response, $length);
@@ -769,6 +776,7 @@ class Net_SFTP extends Net_SSH2 {
                     break;
                 case NET_SFTP_STATUS:
                     extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+                    /* @var $status int */
                     if ($status != NET_SFTP_STATUS_EOF) {
                         $this->_logError($response, $status);
                         return false;
@@ -793,6 +801,7 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+        /* @var $status int */
         if ($status != NET_SFTP_STATUS_OK) {
             $this->_logError($response, $status);
             return false;
@@ -1089,6 +1098,7 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+        /* @var $status int */
         if ($status != NET_SFTP_STATUS_OK) {
             $this->_logError($response, $status);
         }
@@ -1249,6 +1259,7 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+        /* @var $status int */
         if ($status != NET_SFTP_STATUS_OK) {
             $this->_logError($response, $status);
             return false;
@@ -1288,6 +1299,7 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+        /* @var $status int */
         if ($status != NET_SFTP_STATUS_OK) {
             // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED?
             $this->_logError($response, $status);
@@ -1425,6 +1437,7 @@ class Net_SFTP extends Net_SSH2 {
         }
 
         extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+        /* @var $status int */
         if ($status != NET_SFTP_STATUS_OK) {
             $this->_logError($response, $status);
             return false;
@@ -1453,6 +1466,7 @@ class Net_SFTP extends Net_SSH2 {
             }
 
             extract(unpack('Nstatus', $this->_string_shift($response, 4)));
+            /* @var $status int */
             if ($status != NET_SFTP_STATUS_OK) {
                 $this->_logError($response, $status);
                 break;

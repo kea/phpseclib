@@ -184,14 +184,14 @@ class Net_SSH2 {
      *
      * @var String
      */
-    private $identifier = 'SSH-2.0-phpseclib_0.3';
+    protected  $identifier = 'SSH-2.0-phpseclib_0.3';
 
     /**
      * The Socket Object
      *
      * @var BaseSocket
      */
-    private $fsock;
+  protected $fsock;
 
     /**
      * Execution Bitmap
@@ -201,7 +201,7 @@ class Net_SSH2 {
      *
      * @var Integer
      */
-    private $bitmap = 0;
+    protected $bitmap = 0;
 
     /**
      * Error information
@@ -461,7 +461,7 @@ class Net_SSH2 {
      * @see Net_SSH2::_get_binary_packet()
      * @var Integer
      */
-    private $get_seq_no = 0;
+    var $get_seq_no = 0;
 
     /**
      * Server Channels
@@ -472,7 +472,7 @@ class Net_SSH2 {
      * @see Net_SSH2::exec()
      * @var Array
      */
-    private $server_channels = array();
+    protected $server_channels = array();
 
     /**
      * Channel Buffers
@@ -494,7 +494,7 @@ class Net_SSH2 {
      * @see Net_SSH2::_get_channel_packet()
      * @var Array
      */
-    private $channel_status = array();
+    protected $channel_status = array();
 
     /**
      * Packet Size
@@ -531,7 +531,7 @@ class Net_SSH2 {
      * @see Net_SSH2::_send_channel_packet()
      * @see Net_SSH2::exec()
      */
-    private $window_size = 0x7FFFFFFF;
+    protected $window_size = 0x7FFFFFFF;
 
     /**
      * Window size
@@ -541,7 +541,7 @@ class Net_SSH2 {
      * @see Net_SSH2::_send_channel_packet()
      * @var Array
      */
-    private $window_size_client_to_server = array();
+    protected $window_size_client_to_server = array();
 
     /**
      * Server signature
