@@ -1799,16 +1799,16 @@ class Net_SFTP extends Net_SSH2 {
         $result = $this->_send_channel_packet(self::CHANNEL, $packet);
         $stop = strtok(microtime(), ' ') + strtok('');
 
-        if (defined('NET_SFTP_LOGGING')) {
+        if ($this->logging) {
             $packet_type = '-> ' . $this->packet_types[$type] .
                 ' (' . round($stop - $start, 4) . 's)';
-            if (NET_SFTP_LOGGING == self::LOG_REALTIME) {
+            if ($this->logging == self::LOG_REALTIME) {
                 echo "<pre>\r\n" . $this->_format_log(array($data), array($packet_type)) . "\r\n</pre>\r\n";
                 flush();
                 ob_flush();
             } else {
                 $this->packet_type_log[] = $packet_type;
-                if (NET_SFTP_LOGGING == self::LOG_COMPLEX) {
+                if ($this->logging == self::LOG_COMPLEX) {
                     $this->packet_log[] = $data;
                 }
             }
@@ -1875,16 +1875,16 @@ class Net_SFTP extends Net_SSH2 {
 
         $packet = $this->_string_shift($this->packet_buffer, $length);
 
-        if (defined('NET_SFTP_LOGGING')) {
+        if ($this->logging) {
             $packet_type = '<- ' . $this->packet_types[$this->packet_type] .
                 ' (' . round($stop - $start, 4) . 's)';
-            if (NET_SFTP_LOGGING == self::LOG_REALTIME) {
+            if ($this->logging == self::LOG_REALTIME) {
                 echo "<pre>\r\n" . $this->_format_log(array($packet), array($packet_type)) . "\r\n</pre>\r\n";
                 flush();
                 ob_flush();
             } else {
                 $this->packet_type_log[] = $packet_type;
-                if (NET_SFTP_LOGGING == self::LOG_COMPLEX) {
+                if ($this->logging == self::LOG_COMPLEX) {
                     $this->packet_log[] = $packet;
                 }
             }
@@ -1896,18 +1896,18 @@ class Net_SFTP extends Net_SSH2 {
     /**
      * Returns a log of the packets that have been sent and received.
      *
-     * Returns a string if NET_SFTP_LOGGING == self::LOG_COMPLEX, an array if NET_SFTP_LOGGING == self::LOG_SIMPLE and false if !defined('NET_SFTP_LOGGING')
+     * Returns a string if $this->logging == self::LOG_COMPLEX, an array if $this->logging == self::LOG_SIMPLE and false if !$this->logging
      *
      * @access public
      * @return String or Array
      */
     function getSFTPLog()
     {
-        if (!defined('NET_SFTP_LOGGING')) {
+        if (!$this->logging) {
             return false;
         }
 
-        switch (NET_SFTP_LOGGING) {
+        switch ($this->logging) {
             case self::LOG_COMPLEX:
                 return $this->_format_log($this->packet_log, $this->packet_type_log);
                 break;

@@ -699,6 +699,13 @@ class Net_SSH2 {
     private $agent;
 
     /**
+     * Whether logging is on/off
+     * 
+     * @see setLogging()
+     */
+    public $logging = false;
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSHv2 server
@@ -771,11 +778,11 @@ class Net_SSH2 {
             $this->identifier.= ' (' . implode(', ', $ext) . ')';
         }
 
-        if (defined('NET_SSH2_LOGGING')) {
+        if ($this->logging) {
             $this->message_number_log[] = '<-';
             $this->message_number_log[] = '->';
 
-            if (NET_SSH2_LOGGING == self::LOG_COMPLEX) {
+            if ($this->logging == self::LOG_COMPLEX) {
                 $this->message_log[] = $extra . $temp;
                 $this->message_log[] = $this->identifier . "\r\n";
             }
@@ -1394,7 +1401,7 @@ class Net_SSH2 {
         }
 
         // remove the username and password from the last logged packet
-        if (defined('NET_SSH2_LOGGING') && NET_SSH2_LOGGING == self::LOG_COMPLEX) {
+        if ($this->logging && $this->logging == self::LOG_COMPLEX) {
             $packet = pack('CNa*Na*Na*CNa*',
                 self::MSG_USERAUTH_REQUEST, strlen('username'), 'username', strlen('ssh-connection'), 'ssh-connection',
                 strlen('password'), 'password', 0, strlen('password'), 'password'
@@ -1411,8 +1418,8 @@ class Net_SSH2 {
 
         switch ($type) {
             case self::MSG_USERAUTH_PASSWD_CHANGEREQ: // in theory, the password can be changed
-                if (defined('NET_SSH2_LOGGING')) {
-                    $this->message_number_log[count($this->message_number_log) - 1] = 'self::MSG_USERAUTH_PASSWD_CHANGEREQ';
+                if ($this->logging) {
+                    $this->message_number_log[count($this->message_number_log) - 1] = 'Net_SSH2::MSG_USERAUTH_PASSWD_CHANGEREQ';
                 }
                 extract(unpack('Nlength', $this->_string_shift($response, 4)));
                 $this->errors[] = 'SSH_MSG_USERAUTH_PASSWD_CHANGEREQ: ' . utf8_decode($this->_string_shift($response, $length));
@@ -1510,7 +1517,7 @@ class Net_SSH2 {
         switch ($type) {
             case self::MSG_USERAUTH_INFO_REQUEST:
                 // see http://tools.ietf.org/html/rfc4256#section-3.2
-                if (defined('NET_SSH2_LOGGING')) {
+                if ($this->logging) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
                         'UNKNOWN',
                         'self::MSG_USERAUTH_INFO_REQUEST',
@@ -1549,7 +1556,7 @@ class Net_SSH2 {
                     return false;
                 }
 
-                if (defined('NET_SSH2_LOGGING')) {
+                if ($this->logging) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
                         'UNKNOWN',
                         'self::MSG_USERAUTH_INFO_RESPONSE',
@@ -1627,7 +1634,7 @@ class Net_SSH2 {
             case self::MSG_USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
                 // they should be
-                if (defined('NET_SSH2_LOGGING')) {
+                if ($this->logging) {
                     $this->message_number_log[count($this->message_number_log) - 1] = str_replace(
                         'UNKNOWN',
                         'self::MSG_USERAUTH_PK_OK',
@@ -1673,6 +1680,15 @@ class Net_SSH2 {
         }
 
         return false;
+    }
+
+    /**
+     * Set logging mode. Defaults to Net_SSH2::LOG_SIMPLE
+     * 
+     * @see $logging
+     */
+    function setLogging($logging = self::LOG_SIMPLE){
+        $this->logging = $logging;
     }
 
     /**
@@ -1994,7 +2010,7 @@ class Net_SSH2 {
 
         $this->get_seq_no++;
 
-        if (defined('NET_SSH2_LOGGING')) {
+        if ($this->logging) {
             $message_number = isset($this->message_numbers[ord($payload[0])]) ? $this->message_numbers[ord($payload[0])] : 'UNKNOWN (' . ord($payload[0]) . ')';
             $message_number = '<- ' . $message_number .
                               ' (' . round($stop - $start, 4) . 's)';
@@ -2324,7 +2340,7 @@ class Net_SSH2 {
         $result = strlen($packet) == fputs($this->fsock, $packet);
         $stop = strtok(microtime(), ' ') + strtok('');
 
-        if (defined('NET_SSH2_LOGGING')) {
+        if ($this->logging) {
             $message_number = isset($this->message_numbers[ord($data[0])]) ? $this->message_numbers[ord($data[0])] : 'UNKNOWN (' . ord($data[0]) . ')';
             $message_number = '-> ' . $message_number .
                               ' (' . round($stop - $start, 4) . 's)';
@@ -2344,7 +2360,7 @@ class Net_SSH2 {
      */
     function _append_log($message_number, $message)
     {
-            switch (NET_SSH2_LOGGING) {
+            switch ($this->logging) {
                 // useful for benchmarks
                 case self::LOG_SIMPLE:
                     $this->message_number_log[] = $message_number;
@@ -2518,18 +2534,18 @@ class Net_SSH2 {
     /**
      * Returns a log of the packets that have been sent and received.
      *
-     * Returns a string if NET_SSH2_LOGGING == self::LOG_COMPLEX, an array if NET_SSH2_LOGGING == self::LOG_SIMPLE and false if !defined('NET_SSH2_LOGGING')
+     * Returns a string if $this->logging == self::LOG_COMPLEX, an array if $this->logging == self::LOG_SIMPLE and false if !$this->logging
      *
      * @access public
      * @return String or Array
      */
     function getLog()
     {
-        if (!defined('NET_SSH2_LOGGING')) {
+        if (!$this->logging) {
             return false;
         }
 
-        switch (NET_SSH2_LOGGING) {
+        switch ($this->logging) {
             case self::LOG_SIMPLE:
                 return $this->message_number_log;
                 break;
