@@ -63,7 +63,7 @@ abstract class Crypt_RSA_TestCase extends PHPUnit_Framework_TestCase
         $rsa->setPrivateKeyFormat($privMode);
         $rsa->setPublicKeyFormat($pubMode);
         if($password && $privMode != Crypt_RSA::PRIVATE_FORMAT_XML)
-            $rsa->setPassword($password)
+            $rsa->setPassword($password);
         else
             return;
         extract($rsa->createKey($keylen, $timeout));
