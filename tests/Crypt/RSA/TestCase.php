@@ -57,15 +57,19 @@ abstract class Crypt_RSA_TestCase extends PHPUnit_Framework_TestCase
         return $rsa->createKey();
     }
 
-    protected function assertCreateKeypair($keylen, $privMode, $pubMode, $timeout=30){
+    protected function assertCreateKeypair($keylen, $privMode, $pubMode, $password=false, $timeout=false){
         $rsa = new Crypt_RSA;
         $rsa->setPrivateKeyFormat($privMode);
         $rsa->setPublicKeyFormat($pubMode);
+        if($password && $privMode != Crypt_RSA::PRIVATE_FORMAT_XML)
+            $rsa->setPassword($password)
+        else
+            return;
         extract($rsa->createKey($keylen, $timeout));
-        $this->assertThat(false, $this->logicalNot($this->equalTo($publickey)),
-            sprintf("Assertion that publickey != false failed for keylen %s, privMode %s, pubMode %s, timeout %s", $keylen, $privMode, $pubMode, $timeout));
         $this->assertThat(false, $this->logicalNot($this->equalTo($privatekey)),
             sprintf("Assertion that privatekey != false failed for keylen %s, privMode %s, pubMode %s, timeout %s", $keylen, $privMode, $pubMode, $timeout));
+        $this->assertThat(false, $this->logicalNot($this->equalTo($publickey)),
+            sprintf("Assertion that publickey != false failed for keylen %s, privMode %s, pubMode %s, timeout %s", $keylen, $privMode, $pubMode, $timeout));
     }
 
 	protected function assertRecoverable($string, $mode)
