@@ -415,6 +415,11 @@ class Crypt_RSA {
     var $current;
 
     /**
+     * Key Blinding 
+     */
+    var $blinding = true;
+
+    /**
      * The constructor
      *
      * If you want to make use of the openssl extension, you'll need to set the mode manually, yourself.  The reason
@@ -1312,6 +1317,15 @@ implementation are part of the standard, as well.
     }
 
     /**
+     * Sets Blinding on/off
+     *
+     * @see _exponentiate()
+     */
+    function setBlinding(bool $blinding){
+        $this->blinding = $blinding;
+    }
+
+    /**
      * Sets the password
      *
      * Private keys can be encrypted with a password.  To unset the password, pass in the empty string or false.
@@ -1719,7 +1733,7 @@ implementation are part of the standard, as well.
 
         $num_primes = count($this->primes);
 
-        if (defined('self::DISABLE_BLINDING')) {
+        if (!self::$blinding) {
             $m_i = array(
                     1 => $x->modPow($this->exponents[1], $this->primes[1]),
                     2 => $x->modPow($this->exponents[2], $this->primes[2])
