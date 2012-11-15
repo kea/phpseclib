@@ -228,7 +228,7 @@ class Crypt_RSA {
 
     //TODO: make this settable
     const EXPONENT = 65537;
-
+    const SMALLEST_PRIME = 4096;
     const COMMENT = 'phpseclib-generated-key';
     /**
      * Precomputed Zero
