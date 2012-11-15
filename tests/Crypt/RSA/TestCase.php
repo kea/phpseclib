@@ -65,8 +65,8 @@ abstract class Crypt_RSA_TestCase extends PHPUnit_Framework_TestCase
         $rsa->setPublicKeyFormat($pubMode);
         if($password && $privMode != Crypt_RSA::PRIVATE_FORMAT_XML)
             $rsa->setPassword($password);
-        else
-            return;
+        elseif($password)
+            return false;
         extract($rsa->createKey($keylen, $timeout));
         $this->assertThat(false, $this->logicalNot($this->equalTo($privatekey)),
             sprintf("Assertion that privatekey != false failed for keylen %s, privMode %s, pubMode %s, timeout %s", $keylen, $privMode, $pubMode, $timeout));
@@ -76,12 +76,12 @@ abstract class Crypt_RSA_TestCase extends PHPUnit_Framework_TestCase
 
 	protected function assertRecoverable($string, $mode)
 	{
-        echo "assertRecoverable('$string', $mode)\n";
         $keypair = $this->generateRsaKeypair();
         $rsa = new Crypt_RSA;
         $rsa->setEncryptionMode($mode);
         $rsa->loadKey($keypair['publickey']);
         $encrypted = $rsa->encrypt($string);
+        $rsa->loadKey($keypair['privatekey']);
         $decrypted = $rsa->decrypt($encrypted);
 		$this->assertEquals(
 			$string,
@@ -91,7 +91,6 @@ abstract class Crypt_RSA_TestCase extends PHPUnit_Framework_TestCase
 	}
 
     protected function assertSignatureVerifiable($string, $mode, $password=false){
-        echo "assertSignatureVerifiable('$string', $mode, '$password')\n";
         $keypair = $this->generateRsaKeypair();
         $rsa = new Crypt_RSA;
         if($password)
