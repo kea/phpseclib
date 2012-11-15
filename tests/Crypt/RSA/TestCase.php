@@ -7,6 +7,7 @@ use phpseclib\Crypt_Hash;
 
 abstract class Crypt_RSA_TestCase extends PHPUnit_Framework_TestCase
 {
+
     public $privateModes = array(
         Crypt_RSA::PUBLIC_FORMAT_PKCS1,
         Crypt_RSA::PRIVATE_FORMAT_PUTTY,
