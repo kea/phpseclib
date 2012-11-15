@@ -59,7 +59,6 @@ abstract class Crypt_RSA_TestCase extends PHPUnit_Framework_TestCase
     }
 
     protected function assertCreateKeypair($keylen, $privMode, $pubMode, $password=false, $timeout=false){
-        echo "assertCreateKeypair($keylen, $privMode, $pubMode, '$password', '$timeout')\n";
         $rsa = new Crypt_RSA;
         $rsa->setPrivateKeyFormat($privMode);
         $rsa->setPublicKeyFormat($pubMode);
