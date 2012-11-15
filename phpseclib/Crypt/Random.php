@@ -105,13 +105,13 @@ class Crypt_Random
             }
             switch (true) {
                 case class_exists(__NAMESPACE__.'\Crypt_AES'):
-                    $crypto = new Crypt_AES(CRYPT_AES_MODE_CTR);
+                    $crypto = new Crypt_AES(Crypt_AES::MODE_CTR);
                     break;
                 case class_exists(__NAMESPACE__.'\Crypt_TripleDES'):
-                    $crypto = new Crypt_TripleDES(CRYPT_DES_MODE_CTR);
+                    $crypto = new Crypt_TripleDES(Crypt_DES::MODE_CTR);
                     break;
                 case class_exists(__NAMESPACE__.'\Crypt_DES'):
-                    $crypto = new Crypt_DES(CRYPT_DES_MODE_CTR);
+                    $crypto = new Crypt_DES(Crypt_DES::MODE_CTR);
                     break;
                 case class_exists(__NAMESPACE__.'\Crypt_RC4'):
                     $crypto = new Crypt_RC4();

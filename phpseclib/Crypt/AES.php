@@ -65,59 +65,6 @@
 
 namespace phpseclib;
 
-/**#@+
- * @access public
- * @see Crypt_AES::encrypt()
- * @see Crypt_AES::decrypt()
- */
-/**
- * Encrypt / decrypt using the Counter mode.
- *
- * Set to -1 since that's what Crypt/Random.php uses to index the CTR mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
- */
-define('CRYPT_AES_MODE_CTR', -1);
-/**
- * Encrypt / decrypt using the Electronic Code Book mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29
- */
-define('CRYPT_AES_MODE_ECB', 1);
-/**
- * Encrypt / decrypt using the Code Book Chaining mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
- */
-define('CRYPT_AES_MODE_CBC', 2);
-/**
- * Encrypt / decrypt using the Cipher Feedback mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
- */
-define('CRYPT_AES_MODE_CFB', 3);
-/**
- * Encrypt / decrypt using the Cipher Feedback mode.
- *
- * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
- */
-define('CRYPT_AES_MODE_OFB', 4);
-/**#@-*/
-
-/**#@+
- * @access private
- * @see Crypt_AES::Crypt_AES()
- */
-/**
- * Toggles the internal implementation
- */
-define('CRYPT_AES_MODE_INTERNAL', 1);
-/**
- * Toggles the mcrypt implementation
- */
-define('CRYPT_AES_MODE_MCRYPT', 2);
-/**#@-*/
-
 /**
  * Pure-PHP implementation of AES.
  *
@@ -127,6 +74,59 @@ define('CRYPT_AES_MODE_MCRYPT', 2);
  * @package Crypt_AES
  */
 class Crypt_AES extends Crypt_Rijndael {
+    /**#@+
+     * @access public
+     * @see Crypt_AES::encrypt()
+     * @see Crypt_AES::decrypt()
+     */
+    /**
+     * Encrypt / decrypt using the Counter mode.
+     *
+     * Set to -1 since that's what Crypt/Random.php uses to index the CTR mode.
+     *
+     * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
+     */
+    const MODE_CTR = -1;
+    /**
+     * Encrypt / decrypt using the Electronic Code Book mode.
+     *
+     * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29
+     */
+    const MODE_ECB = 1;
+    /**
+     * Encrypt / decrypt using the Code Book Chaining mode.
+     *
+     * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
+     */
+    const MODE_CBC = 2;
+    /**
+     * Encrypt / decrypt using the Cipher Feedback mode.
+     *
+     * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
+     */
+    const MODE_CFB = 3;
+    /**
+     * Encrypt / decrypt using the Cipher Feedback mode.
+     *
+     * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
+     */
+    const MODE_OFB = 4;
+    /**#@-*/
+
+    /**#@+
+     * @access private
+     * @see Crypt_AES::Crypt_AES()
+     */
+    /**
+     * Toggles the internal implementation
+     */
+    const MODE_INTERNAL = 1;
+    /**
+     * Toggles the mcrypt implementation
+     */
+    const MODE_MCRYPT = 2;
+    /**#@-*/
+
     /**
      * mcrypt resource for encryption
      *
@@ -165,45 +165,45 @@ class Crypt_AES extends Crypt_Rijndael {
      * Default Constructor.
      *
      * Determines whether or not the mcrypt extension should be used.  $mode should only, at present, be
-     * CRYPT_AES_MODE_ECB or CRYPT_AES_MODE_CBC.  If not explictly set, CRYPT_AES_MODE_CBC will be used.
+     * self::MODE_ECB or self::MODE_CBC.  If not explictly set, self::MODE_CBC will be used.
      *
      * @param optional Integer $mode
      * @return Crypt_AES
      * @access public
      */
-    function __construct($mode = CRYPT_AES_MODE_CBC)
+    function __construct($mode = self::MODE_CBC)
     {
         if ( !defined('CRYPT_AES_MODE') ) {
             switch (true) {
                 case extension_loaded('mcrypt') && in_array('rijndael-128', mcrypt_list_algorithms()):
-                    define('CRYPT_AES_MODE', CRYPT_AES_MODE_MCRYPT);
+                    define('CRYPT_AES_MODE', self::MODE_MCRYPT);
                     break;
                 default:
-                    define('CRYPT_AES_MODE', CRYPT_AES_MODE_INTERNAL);
+                    define('CRYPT_AES_MODE', self::MODE_INTERNAL);
             }
         }
 
         switch ( CRYPT_AES_MODE ) {
-            case CRYPT_AES_MODE_MCRYPT:
+            case self::MODE_MCRYPT:
                 switch ($mode) {
-                    case CRYPT_AES_MODE_ECB:
+                    case self::MODE_ECB:
                         $this->paddable = true;
                         $this->mode = MCRYPT_MODE_ECB;
                         break;
-                    case CRYPT_AES_MODE_CTR:
+                    case self::MODE_CTR:
                         // ctr doesn't have a constant associated with it even though it appears to be fairly widely
                         // supported.  in lieu of knowing just how widely supported it is, i've, for now, opted not to
                         // include a compatibility layer.  the layer has been implemented but, for now, is commented out.
                         $this->mode = 'ctr';
-                        //$this->mode = in_array('ctr', mcrypt_list_modes()) ? 'ctr' : CRYPT_AES_MODE_CTR;
+                        //$this->mode = in_array('ctr', mcrypt_list_modes()) ? 'ctr' : self::MODE_CTR;
                         break;
-                    case CRYPT_AES_MODE_CFB:
+                    case self::MODE_CFB:
                         $this->mode = 'ncfb';
                         break;
-                    case CRYPT_AES_MODE_OFB:
+                    case self::MODE_OFB:
                         $this->mode = MCRYPT_MODE_NOFB;
                         break;
-                    case CRYPT_AES_MODE_CBC:
+                    case self::MODE_CBC:
                     default:
                         $this->paddable = true;
                         $this->mode = MCRYPT_MODE_CBC;
@@ -214,27 +214,27 @@ class Crypt_AES extends Crypt_Rijndael {
                 break;
             default:
                 switch ($mode) {
-                    case CRYPT_AES_MODE_ECB:
+                    case self::MODE_ECB:
                         $this->paddable = true;
                         $this->mode = CRYPT_RIJNDAEL_MODE_ECB;
                         break;
-                    case CRYPT_AES_MODE_CTR:
+                    case self::MODE_CTR:
                         $this->mode = CRYPT_RIJNDAEL_MODE_CTR;
                         break;
-                    case CRYPT_AES_MODE_CFB:
+                    case self::MODE_CFB:
                         $this->mode = CRYPT_RIJNDAEL_MODE_CFB;
                         break;
-                    case CRYPT_AES_MODE_OFB:
+                    case self::MODE_OFB:
                         $this->mode = CRYPT_RIJNDAEL_MODE_OFB;
                         break;
-                    case CRYPT_AES_MODE_CBC:
+                    case self::MODE_CBC:
                     default:
                         $this->paddable = true;
                         $this->mode = CRYPT_RIJNDAEL_MODE_CBC;
                 }
         }
 
-        if (CRYPT_AES_MODE == CRYPT_AES_MODE_INTERNAL) {
+        if (CRYPT_AES_MODE == self::MODE_INTERNAL) {
             parent::__construct($this->mode);
         }
     }
@@ -265,7 +265,7 @@ class Crypt_AES extends Crypt_Rijndael {
     function setIV($iv)
     {
         parent::setIV($iv);
-        if ( CRYPT_AES_MODE == CRYPT_AES_MODE_MCRYPT ) {
+        if ( CRYPT_AES_MODE == self::MODE_MCRYPT ) {
             $this->changed = true;
         }
     }
@@ -289,20 +289,20 @@ class Crypt_AES extends Crypt_Rijndael {
      */
     function encrypt($plaintext)
     {
-        if ( CRYPT_AES_MODE == CRYPT_AES_MODE_MCRYPT ) {
+        if ( CRYPT_AES_MODE == self::MODE_MCRYPT ) {
             $changed = $this->changed;
             $this->_mcryptSetup();
             /*
-            if ($this->mode == CRYPT_AES_MODE_CTR) {
-                $iv = $this->encryptIV;
-                $xor = mcrypt_generic($this->enmcrypt, $this->_generate_xor(strlen($plaintext), $iv));
-                $ciphertext = $plaintext ^ $xor;
-                if ($this->continuousBuffer) {
-                    $this->encryptIV = $iv;
-                }
-                return $ciphertext;
-            }
-            */
+               if ($this->mode == self::MODE_CTR) {
+               $iv = $this->encryptIV;
+               $xor = mcrypt_generic($this->enmcrypt, $this->_generate_xor(strlen($plaintext), $iv));
+               $ciphertext = $plaintext ^ $xor;
+               if ($this->continuousBuffer) {
+               $this->encryptIV = $iv;
+               }
+               return $ciphertext;
+               }
+             */
             // re: http://phpseclib.sourceforge.net/cfb-demo.phps
             // using mcrypt's default handing of CFB the above would output two different things.  using phpseclib's
             // rewritten CFB implementation the above outputs the same thing twice.
@@ -367,20 +367,20 @@ class Crypt_AES extends Crypt_Rijndael {
      */
     function decrypt($ciphertext)
     {
-        if ( CRYPT_AES_MODE == CRYPT_AES_MODE_MCRYPT ) {
+        if ( CRYPT_AES_MODE == self::MODE_MCRYPT ) {
             $changed = $this->changed;
             $this->_mcryptSetup();
             /*
-            if ($this->mode == CRYPT_AES_MODE_CTR) {
-                $iv = $this->decryptIV;
-                $xor = mcrypt_generic($this->enmcrypt, $this->_generate_xor(strlen($ciphertext), $iv));
-                $plaintext = $ciphertext ^ $xor;
-                if ($this->continuousBuffer) {
-                    $this->decryptIV = $iv;
-                }
-                return $plaintext;
-            }
-            */
+               if ($this->mode == self::MODE_CTR) {
+               $iv = $this->decryptIV;
+               $xor = mcrypt_generic($this->enmcrypt, $this->_generate_xor(strlen($ciphertext), $iv));
+               $plaintext = $ciphertext ^ $xor;
+               if ($this->continuousBuffer) {
+               $this->decryptIV = $iv;
+               }
+               return $plaintext;
+               }
+             */
             if ($this->mode == 'ncfb') {
                 if ($changed) {
                     $this->ecb = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_ECB, '');
@@ -477,7 +477,7 @@ class Crypt_AES extends Crypt_Rijndael {
 
         if (!isset($this->enmcrypt)) {
             $mode = $this->mode;
-            //$mode = $this->mode == CRYPT_AES_MODE_CTR ? MCRYPT_MODE_ECB : $this->mode;
+            //$mode = $this->mode == self::MODE_CTR ? MCRYPT_MODE_ECB : $this->mode;
 
             $this->demcrypt = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', $mode, '');
             $this->enmcrypt = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', $mode, '');
@@ -512,40 +512,40 @@ class Crypt_AES extends Crypt_Rijndael {
 
         // addRoundKey and reindex $state
         $state = array(
-            $state['word1'] ^ $w[0][0],
-            $state['word2'] ^ $w[0][1],
-            $state['word3'] ^ $w[0][2],
-            $state['word4'] ^ $w[0][3]
-        );
+                $state['word1'] ^ $w[0][0],
+                $state['word2'] ^ $w[0][1],
+                $state['word3'] ^ $w[0][2],
+                $state['word4'] ^ $w[0][3]
+                );
 
         // shiftRows + subWord + mixColumns + addRoundKey
         // we could loop unroll this and use if statements to do more rounds as necessary, but, in my tests, that yields
         // only a marginal improvement.  since that also, imho, hinders the readability of the code, i've opted not to do it.
         for ($round = 1; $round < $this->Nr; $round++) {
             $state = array(
-                $t0[$state[0] & 0xFF000000] ^ $t1[$state[1] & 0x00FF0000] ^ $t2[$state[2] & 0x0000FF00] ^ $t3[$state[3] & 0x000000FF] ^ $w[$round][0],
-                $t0[$state[1] & 0xFF000000] ^ $t1[$state[2] & 0x00FF0000] ^ $t2[$state[3] & 0x0000FF00] ^ $t3[$state[0] & 0x000000FF] ^ $w[$round][1],
-                $t0[$state[2] & 0xFF000000] ^ $t1[$state[3] & 0x00FF0000] ^ $t2[$state[0] & 0x0000FF00] ^ $t3[$state[1] & 0x000000FF] ^ $w[$round][2],
-                $t0[$state[3] & 0xFF000000] ^ $t1[$state[0] & 0x00FF0000] ^ $t2[$state[1] & 0x0000FF00] ^ $t3[$state[2] & 0x000000FF] ^ $w[$round][3]
-            );
+                    $t0[$state[0] & 0xFF000000] ^ $t1[$state[1] & 0x00FF0000] ^ $t2[$state[2] & 0x0000FF00] ^ $t3[$state[3] & 0x000000FF] ^ $w[$round][0],
+                    $t0[$state[1] & 0xFF000000] ^ $t1[$state[2] & 0x00FF0000] ^ $t2[$state[3] & 0x0000FF00] ^ $t3[$state[0] & 0x000000FF] ^ $w[$round][1],
+                    $t0[$state[2] & 0xFF000000] ^ $t1[$state[3] & 0x00FF0000] ^ $t2[$state[0] & 0x0000FF00] ^ $t3[$state[1] & 0x000000FF] ^ $w[$round][2],
+                    $t0[$state[3] & 0xFF000000] ^ $t1[$state[0] & 0x00FF0000] ^ $t2[$state[1] & 0x0000FF00] ^ $t3[$state[2] & 0x000000FF] ^ $w[$round][3]
+                    );
 
         }
 
         // subWord
         $state = array(
-            $this->_subWord($state[0]),
-            $this->_subWord($state[1]),
-            $this->_subWord($state[2]),
-            $this->_subWord($state[3])
-        );
+                $this->_subWord($state[0]),
+                $this->_subWord($state[1]),
+                $this->_subWord($state[2]),
+                $this->_subWord($state[3])
+                );
 
         // shiftRows + addRoundKey
         $state = array(
-            ($state[0] & 0xFF000000) ^ ($state[1] & 0x00FF0000) ^ ($state[2] & 0x0000FF00) ^ ($state[3] & 0x000000FF) ^ $this->w[$this->Nr][0],
-            ($state[1] & 0xFF000000) ^ ($state[2] & 0x00FF0000) ^ ($state[3] & 0x0000FF00) ^ ($state[0] & 0x000000FF) ^ $this->w[$this->Nr][1],
-            ($state[2] & 0xFF000000) ^ ($state[3] & 0x00FF0000) ^ ($state[0] & 0x0000FF00) ^ ($state[1] & 0x000000FF) ^ $this->w[$this->Nr][2],
-            ($state[3] & 0xFF000000) ^ ($state[0] & 0x00FF0000) ^ ($state[1] & 0x0000FF00) ^ ($state[2] & 0x000000FF) ^ $this->w[$this->Nr][3]
-        );
+                ($state[0] & 0xFF000000) ^ ($state[1] & 0x00FF0000) ^ ($state[2] & 0x0000FF00) ^ ($state[3] & 0x000000FF) ^ $this->w[$this->Nr][0],
+                ($state[1] & 0xFF000000) ^ ($state[2] & 0x00FF0000) ^ ($state[3] & 0x0000FF00) ^ ($state[0] & 0x000000FF) ^ $this->w[$this->Nr][1],
+                ($state[2] & 0xFF000000) ^ ($state[3] & 0x00FF0000) ^ ($state[0] & 0x0000FF00) ^ ($state[1] & 0x000000FF) ^ $this->w[$this->Nr][2],
+                ($state[3] & 0xFF000000) ^ ($state[0] & 0x00FF0000) ^ ($state[1] & 0x0000FF00) ^ ($state[2] & 0x000000FF) ^ $this->w[$this->Nr][3]
+                );
 
         return pack('N*', $state[0], $state[1], $state[2], $state[3]);
     }
@@ -573,30 +573,30 @@ class Crypt_AES extends Crypt_Rijndael {
 
         // addRoundKey and reindex $state
         $state = array(
-            $state['word1'] ^ $dw[$this->Nr][0],
-            $state['word2'] ^ $dw[$this->Nr][1],
-            $state['word3'] ^ $dw[$this->Nr][2],
-            $state['word4'] ^ $dw[$this->Nr][3]
-        );
+                $state['word1'] ^ $dw[$this->Nr][0],
+                $state['word2'] ^ $dw[$this->Nr][1],
+                $state['word3'] ^ $dw[$this->Nr][2],
+                $state['word4'] ^ $dw[$this->Nr][3]
+                );
 
 
         // invShiftRows + invSubBytes + invMixColumns + addRoundKey
         for ($round = $this->Nr - 1; $round > 0; $round--) {
             $state = array(
-                $dt0[$state[0] & 0xFF000000] ^ $dt1[$state[3] & 0x00FF0000] ^ $dt2[$state[2] & 0x0000FF00] ^ $dt3[$state[1] & 0x000000FF] ^ $dw[$round][0],
-                $dt0[$state[1] & 0xFF000000] ^ $dt1[$state[0] & 0x00FF0000] ^ $dt2[$state[3] & 0x0000FF00] ^ $dt3[$state[2] & 0x000000FF] ^ $dw[$round][1],
-                $dt0[$state[2] & 0xFF000000] ^ $dt1[$state[1] & 0x00FF0000] ^ $dt2[$state[0] & 0x0000FF00] ^ $dt3[$state[3] & 0x000000FF] ^ $dw[$round][2],
-                $dt0[$state[3] & 0xFF000000] ^ $dt1[$state[2] & 0x00FF0000] ^ $dt2[$state[1] & 0x0000FF00] ^ $dt3[$state[0] & 0x000000FF] ^ $dw[$round][3]
-            );
+                    $dt0[$state[0] & 0xFF000000] ^ $dt1[$state[3] & 0x00FF0000] ^ $dt2[$state[2] & 0x0000FF00] ^ $dt3[$state[1] & 0x000000FF] ^ $dw[$round][0],
+                    $dt0[$state[1] & 0xFF000000] ^ $dt1[$state[0] & 0x00FF0000] ^ $dt2[$state[3] & 0x0000FF00] ^ $dt3[$state[2] & 0x000000FF] ^ $dw[$round][1],
+                    $dt0[$state[2] & 0xFF000000] ^ $dt1[$state[1] & 0x00FF0000] ^ $dt2[$state[0] & 0x0000FF00] ^ $dt3[$state[3] & 0x000000FF] ^ $dw[$round][2],
+                    $dt0[$state[3] & 0xFF000000] ^ $dt1[$state[2] & 0x00FF0000] ^ $dt2[$state[1] & 0x0000FF00] ^ $dt3[$state[0] & 0x000000FF] ^ $dw[$round][3]
+                    );
         }
 
         // invShiftRows + invSubWord + addRoundKey
         $state = array(
-            $this->_invSubWord(($state[0] & 0xFF000000) ^ ($state[3] & 0x00FF0000) ^ ($state[2] & 0x0000FF00) ^ ($state[1] & 0x000000FF)) ^ $dw[0][0],
-            $this->_invSubWord(($state[1] & 0xFF000000) ^ ($state[0] & 0x00FF0000) ^ ($state[3] & 0x0000FF00) ^ ($state[2] & 0x000000FF)) ^ $dw[0][1],
-            $this->_invSubWord(($state[2] & 0xFF000000) ^ ($state[1] & 0x00FF0000) ^ ($state[0] & 0x0000FF00) ^ ($state[3] & 0x000000FF)) ^ $dw[0][2],
-            $this->_invSubWord(($state[3] & 0xFF000000) ^ ($state[2] & 0x00FF0000) ^ ($state[1] & 0x0000FF00) ^ ($state[0] & 0x000000FF)) ^ $dw[0][3]
-        );
+                $this->_invSubWord(($state[0] & 0xFF000000) ^ ($state[3] & 0x00FF0000) ^ ($state[2] & 0x0000FF00) ^ ($state[1] & 0x000000FF)) ^ $dw[0][0],
+                $this->_invSubWord(($state[1] & 0xFF000000) ^ ($state[0] & 0x00FF0000) ^ ($state[3] & 0x0000FF00) ^ ($state[2] & 0x000000FF)) ^ $dw[0][1],
+                $this->_invSubWord(($state[2] & 0xFF000000) ^ ($state[1] & 0x00FF0000) ^ ($state[0] & 0x0000FF00) ^ ($state[3] & 0x000000FF)) ^ $dw[0][2],
+                $this->_invSubWord(($state[3] & 0xFF000000) ^ ($state[2] & 0x00FF0000) ^ ($state[1] & 0x0000FF00) ^ ($state[0] & 0x000000FF)) ^ $dw[0][3]
+                );
 
         return pack('N*', $state[0], $state[1], $state[2], $state[3]);
     }

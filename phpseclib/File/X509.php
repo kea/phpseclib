@@ -1531,7 +1531,7 @@ class File_X509 {
                 if (is_bool($map)) {
                     if (!$map) {
                         unset($extensions[$i]);
-                        throw new Exception($id . ' is not a currently supported extension', E_USER_NOTICE);
+                        throw new \Exception($id . ' is not a currently supported extension', E_USER_NOTICE);
                     }
                 } else {
                     $temp = $asn1->encodeDER($value, $map);
