@@ -6,11 +6,12 @@ class Crypt_RSA_RSATest extends Crypt_RSA_TestCase
     public $password = "supersecure";
 
     public function testCreateKey(){
-        foreach(array(false, $this->password) as $password)
+    #    $passArray = array(false, $this->password);
+    #    foreach($passArray as $password)
             foreach($this->keylens as $keylen)
                 foreach($this->privateModes as $privMode)
                     foreach($this->publicModes as $pubMode)
-                        $this->assertCreateKeypair($keylen, $privMode, $pubMode, $password);
+                        $this->assertCreateKeypair($keylen, $privMode, $pubMode);//, $password);
     }
 
     public function testCreateVerifySignature(){

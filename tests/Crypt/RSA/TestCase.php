@@ -59,6 +59,7 @@ abstract class Crypt_RSA_TestCase extends PHPUnit_Framework_TestCase
     }
 
     protected function assertCreateKeypair($keylen, $privMode, $pubMode, $password=false, $timeout=false){
+        echo "assertCreateKeypair($keylen, $privMode, $pubMode, '$password', '$timeout')\n";
         $rsa = new Crypt_RSA;
         $rsa->setPrivateKeyFormat($privMode);
         $rsa->setPublicKeyFormat($pubMode);
@@ -75,6 +76,7 @@ abstract class Crypt_RSA_TestCase extends PHPUnit_Framework_TestCase
 
 	protected function assertRecoverable($string, $mode)
 	{
+        echo "assertRecoverable('$string', $mode)\n";
         $keypair = $this->generateRsaKeypair();
         $rsa = new Crypt_RSA;
         $rsa->setEncryptionMode($mode);
@@ -89,6 +91,7 @@ abstract class Crypt_RSA_TestCase extends PHPUnit_Framework_TestCase
 	}
 
     protected function assertSignatureVerifiable($string, $mode, $password=false){
+        echo "assertSignatureVerifiable('$string', $mode, '$password')\n";
         $keypair = $this->generateRsaKeypair();
         $rsa = new Crypt_RSA;
         if($password)
