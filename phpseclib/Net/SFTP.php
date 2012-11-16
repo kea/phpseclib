@@ -646,7 +646,7 @@ class Net_SFTP extends Net_SSH2 {
      */
     function chdir($dir)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & self::_MASK_LOGIN)) {
             return false;
         }
 
@@ -853,7 +853,7 @@ class Net_SFTP extends Net_SSH2 {
      */
     function size($filename)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & self::MASK_LOGIN)) {
             return false;
         }
 
@@ -938,7 +938,7 @@ class Net_SFTP extends Net_SSH2 {
      */
     function stat($filename)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & self::MASK_LOGIN)) {
             return false;
         }
 
@@ -972,7 +972,7 @@ class Net_SFTP extends Net_SSH2 {
      */
     function lstat($filename)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & self::MASK_LOGIN)) {
             return false;
         }
 
@@ -1092,7 +1092,7 @@ class Net_SFTP extends Net_SSH2 {
      */
     function chmod($mode, $filename, $recursive = false)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & self::MASK_LOGIN)) {
             return false;
         }
 
@@ -1239,7 +1239,7 @@ class Net_SFTP extends Net_SSH2 {
      */
     function mkdir($dir)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & self::MASK_LOGIN)) {
             return false;
         }
 
@@ -1307,7 +1307,7 @@ class Net_SFTP extends Net_SSH2 {
      */
     function rmdir($dir)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & self::MASK_LOGIN)) {
             return false;
         }
 
@@ -1513,7 +1513,7 @@ class Net_SFTP extends Net_SSH2 {
      */
     function get($remote_file, $local_file = false)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & self::MASK_LOGIN)) {
             return false;
         }
 
@@ -1734,7 +1734,7 @@ class Net_SFTP extends Net_SSH2 {
      */
     function rename($oldname, $newname)
     {
-        if (!($this->bitmap & NET_SSH2_MASK_LOGIN)) {
+        if (!($this->bitmap & self::MASK_LOGIN)) {
             return false;
         }
 
